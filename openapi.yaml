@@ -1,0 +1,2440 @@
+openapi: 3.0.0
+info:
+  description: "Nncof_EventsSubscription Service API.  \n© 2025, 3GPP Organizational\
+    \ Partners (ARIB, ATIS, CCSA, ETSI, TSDSI, TTA, TTC).  \nAll rights reserved.\n"
+  title: Nncof_EventsSubscription
+  version: 1.0.0
+externalDocs:
+  description: 3GPP TS 29.520 V19.2.0; 5G System; Network Control and Optimization
+    Services.
+  url: https://www.3gpp.org/ftp/Specs/archive/29_series/29.520/
+servers:
+- description: SwaggerHub API Auto Mocking
+  url: https://virtserver.swaggerhub.com/ETRI_INRS_TEAM/NCOF_Nnwdaf_EventSubscription/1.0.0
+- description: SwaggerHub API Auto Mocking
+  url: https://virtserver.swaggerhub.com/ETRI_INRS_TEAM/NCOF_Nncof_EventSubscription/1.0.0
+- url: "{apiRoot}/nnwdaf-eventssubscription/v1"
+  variables:
+    apiRoot:
+      default: https://example.com
+      description: apiRoot as defined in clause 4.4 of 3GPP TS 29.501.
+security:
+- {}
+- oAuth2ClientCredentials:
+  - nncof-eventssubscription
+paths:
+  /subscriptions:
+    post:
+      callbacks:
+        myNotification:
+          '{$request.body#/notificationURI}':
+            post:
+              operationId: my_notification_post
+              requestBody:
+                content:
+                  application/json:
+                    schema:
+                      items:
+                        type: string
+                      minItems: 1
+                      type: array
+                required: true
+              responses:
+                "204":
+                  description: The receipt of the Notification is acknowledged.
+                "307":
+                  content:
+                    application/json:
+                      schema:
+                        $ref: '#/components/schemas/RedirectResponse'
+                  description: Temporary Redirect
+                  headers:
+                    Location:
+                      description: The URI pointing to the resource located on the
+                        redirect target
+                      required: true
+                      schema:
+                        type: string
+                    "3gpp-Sbi-Target-Nf-Id":
+                      description: |
+                        'Identifier of target NF (service) instance towards which the request is redirected'
+                      schema:
+                        type: string
+                "308":
+                  content:
+                    application/json:
+                      schema:
+                        $ref: '#/components/schemas/RedirectResponse'
+                  description: Permanent Redirect
+                  headers:
+                    Location:
+                      description: The URI pointing to the resource located on the
+                        redirect target
+                      required: true
+                      schema:
+                        type: string
+                    "3gpp-Sbi-Target-Nf-Id":
+                      description: |
+                        'Identifier of target NF (service) instance towards which the request is redirected'
+                      schema:
+                        type: string
+                "400":
+                  content:
+                    application/problem+json:
+                      schema:
+                        $ref: '#/components/schemas/ProblemDetails'
+                  description: Bad request
+                "401":
+                  content:
+                    application/problem+json:
+                      schema:
+                        $ref: '#/components/schemas/ProblemDetails'
+                  description: Unauthorized
+                "403":
+                  content:
+                    application/problem+json:
+                      schema:
+                        $ref: '#/components/schemas/ProblemDetails'
+                  description: Forbidden
+                "404":
+                  content:
+                    application/problem+json:
+                      schema:
+                        $ref: '#/components/schemas/ProblemDetails'
+                  description: Not Found
+                "411":
+                  content:
+                    application/problem+json:
+                      schema:
+                        $ref: '#/components/schemas/ProblemDetails'
+                  description: Length Required
+                "413":
+                  content:
+                    application/problem+json:
+                      schema:
+                        $ref: '#/components/schemas/ProblemDetails'
+                  description: Content Too Large
+                "415":
+                  content:
+                    application/problem+json:
+                      schema:
+                        $ref: '#/components/schemas/ProblemDetails'
+                  description: Unsupported Media Type
+                "429":
+                  content:
+                    application/problem+json:
+                      schema:
+                        $ref: '#/components/schemas/ProblemDetails'
+                  description: Too Many Requests
+                "500":
+                  content:
+                    application/problem+json:
+                      schema:
+                        $ref: '#/components/schemas/ProblemDetails'
+                  description: Internal Server Error
+                "502":
+                  content:
+                    application/problem+json:
+                      schema:
+                        $ref: '#/components/schemas/ProblemDetails'
+                  description: Bad Gateway
+                "503":
+                  content:
+                    application/problem+json:
+                      schema:
+                        $ref: '#/components/schemas/ProblemDetails'
+                  description: Service Unavailable
+                default:
+                  description: Generic Error
+              x-callback-request: true
+      operationId: CreateNCOFEventsSubscription
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NncofEventsSubscription'
+        required: true
+      responses:
+        "201":
+          description: Create a new Individual NCOF Event Subscription resource.
+          headers:
+            Location:
+              description: |
+                Contains the URI of the newly created resource, according to the structure {apiRoot}/nnwdaf-eventssubscription/<apiVersion>/subscriptions/{subscriptionId}
+              explode: false
+              required: true
+              schema:
+                type: string
+              style: simple
+        "400":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          description: Bad request
+        "401":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          description: Unauthorized
+        "403":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          description: Forbidden
+        "404":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          description: Not Found
+        "411":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          description: Length Required
+        "413":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          description: Content Too Large
+        "415":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          description: Unsupported Media Type
+        "429":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          description: Too Many Requests
+        "500":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          description: Internal Server Error
+        "502":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          description: Bad Gateway
+        "503":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          description: Service Unavailable
+        default:
+          description: Generic Error
+      summary: Create a new Individual NCOF Events Subscription
+      tags:
+      - NCOF Events Subscriptions
+  /subscriptions/{subscriptionId}:
+    delete:
+      operationId: DeleteNCOFEventsSubscription
+      parameters:
+      - description: String identifying a subscription to the Nncof_EventsSubscription
+          Service
+        explode: false
+        in: path
+        name: subscriptionId
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "204":
+          description: |
+            No Content. The Individual NCOF Event Subscription resource matching the subscriptionId was deleted.
+        "307":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RedirectResponse'
+          description: Temporary Redirect
+          headers:
+            Location:
+              description: The URI pointing to the resource located on the redirect
+                target
+              required: true
+              schema:
+                type: string
+            "3gpp-Sbi-Target-Nf-Id":
+              description: |
+                'Identifier of target NF (service) instance towards which the request is redirected'
+              schema:
+                type: string
+        "308":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RedirectResponse'
+          description: Permanent Redirect
+          headers:
+            Location:
+              description: The URI pointing to the resource located on the redirect
+                target
+              required: true
+              schema:
+                type: string
+            "3gpp-Sbi-Target-Nf-Id":
+              description: |
+                'Identifier of target NF (service) instance towards which the request is redirected'
+              schema:
+                type: string
+        "400":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          description: Bad request
+        "401":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          description: Unauthorized
+        "403":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          description: Forbidden
+        "404":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          description: Not Found
+        "429":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          description: Too Many Requests
+        "500":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          description: Internal Server Error
+        "501":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          description: Not Implemented
+        "502":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          description: Bad Gateway
+        "503":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          description: Service Unavailable
+        default:
+          description: Generic Error
+      summary: Delete an existing Individual NCOF Events Subscription
+      tags:
+      - Individual NCOF Events Subscription
+    put:
+      operationId: UpdateNCOFEventsSubscription
+      parameters:
+      - description: String identifying a subscription to the Nncof_EventsSubscription
+          Service.
+        explode: false
+        in: path
+        name: subscriptionId
+        required: true
+        schema:
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NncofEventsSubscription'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NncofEventsSubscription'
+          description: |
+            The Individual NCOF Event Subscription resource was modified successfully and a representation of that resource is returned.
+        "204":
+          description: The Individual NCOF Event Subscription resource was modified
+            successfully.
+        "307":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RedirectResponse'
+          description: Temporary Redirect
+          headers:
+            Location:
+              description: The URI pointing to the resource located on the redirect
+                target
+              required: true
+              schema:
+                type: string
+            "3gpp-Sbi-Target-Nf-Id":
+              description: |
+                'Identifier of target NF (service) instance towards which the request is redirected'
+              schema:
+                type: string
+        "308":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RedirectResponse'
+          description: Permanent Redirect
+          headers:
+            Location:
+              description: The URI pointing to the resource located on the redirect
+                target
+              required: true
+              schema:
+                type: string
+            "3gpp-Sbi-Target-Nf-Id":
+              description: |
+                'Identifier of target NF (service) instance towards which the request is redirected'
+              schema:
+                type: string
+        "400":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          description: Bad request
+        "401":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          description: Unauthorized
+        "403":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          description: Forbidden
+        "404":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          description: Not Found
+        "411":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          description: Length Required
+        "413":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          description: Content Too Large
+        "415":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          description: Unsupported Media Type
+        "429":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          description: Too Many Requests
+        "500":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          description: Internal Server Error
+        "501":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          description: Not Implemented
+        "502":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          description: Bad Gateway
+        "503":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          description: Service Unavailable
+        default:
+          description: Generic Error
+      summary: Update an existing Individual NCOF Events Subscription
+      tags:
+      - Individual NCOF Events Subscription
+  /transfers:
+    post:
+      operationId: CreateNCOFEventSubscriptionTransfer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: string
+        required: true
+      responses:
+        "201":
+          description: Create a new Individual NCOF Event Subscription Transfer resource.
+          headers:
+            Location:
+              description: |
+                Contains the URI of the newly created resource, according to the structure {apiRoot}/nncof-eventssubscription/<apiVersion>/transfers/{transferId}
+              explode: false
+              required: true
+              schema:
+                type: string
+              style: simple
+        "204":
+          description: |
+            No Content. The receipt of the information about analytics subscription(s) that are requested to be transferred and the ability to handle this information (e.g. execute the steps required to transfer an analytics subscription directly) is confirmed.
+        "400":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          description: Bad request
+        "401":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          description: Unauthorized
+        "403":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          description: Forbidden
+        "404":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          description: Not Found
+        "411":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          description: Length Required
+        "413":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          description: Content Too Large
+        "415":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          description: Unsupported Media Type
+        "429":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          description: Too Many Requests
+        "500":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          description: Internal Server Error
+        "502":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          description: Bad Gateway
+        "503":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          description: Service Unavailable
+        default:
+          description: Generic Error
+      security:
+      - {}
+      - oAuth2ClientCredentials:
+        - nncof-eventssubscription
+      - oAuth2ClientCredentials:
+        - nncof-eventssubscription
+        - nncof-eventssubscription:transfer
+      summary: Provide information about requested analytics subscriptions transfer
+        and potentially create a new Individual NCOF Event Subscription Transfer resource.
+      tags:
+      - NCOF Event Subscription Transfers
+  /transfers/{transferId}:
+    delete:
+      operationId: DeleteNCOFEventSubscriptionTransfer
+      parameters:
+      - description: |
+          String identifying a request for an analytics subscription transfer to the Nncof_EventsSubscription Service.
+        explode: false
+        in: path
+        name: transferId
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "204":
+          description: |
+            No Content. The Individual NCOF Event Subscription Transfer resource matching the transferId was deleted.
+        "307":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RedirectResponse'
+          description: Temporary Redirect
+          headers:
+            Location:
+              description: The URI pointing to the resource located on the redirect
+                target
+              required: true
+              schema:
+                type: string
+            "3gpp-Sbi-Target-Nf-Id":
+              description: |
+                'Identifier of target NF (service) instance towards which the request is redirected'
+              schema:
+                type: string
+        "308":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RedirectResponse'
+          description: Permanent Redirect
+          headers:
+            Location:
+              description: The URI pointing to the resource located on the redirect
+                target
+              required: true
+              schema:
+                type: string
+            "3gpp-Sbi-Target-Nf-Id":
+              description: |
+                'Identifier of target NF (service) instance towards which the request is redirected'
+              schema:
+                type: string
+        "400":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          description: Bad request
+        "401":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          description: Unauthorized
+        "403":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          description: Forbidden
+        "404":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          description: Not Found
+        "429":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          description: Too Many Requests
+        "500":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          description: Internal Server Error
+        "501":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          description: Not Implemented
+        "502":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          description: Bad Gateway
+        "503":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          description: Service Unavailable
+        default:
+          description: Generic Error
+      security:
+      - {}
+      - oAuth2ClientCredentials:
+        - nncof-eventssubscription
+      - oAuth2ClientCredentials:
+        - nncof-eventssubscription
+        - nncof-eventssubscription:transfer
+      summary: Delete an existing Individual NCOF Event Subscription Transfer
+      tags:
+      - Individual NCOF Event Subscription Transfer
+    put:
+      operationId: UpdateNCOFEventSubscriptionTransfer
+      parameters:
+      - description: |
+          String identifying a request for an analytics subscription transfer to the Nncof_EventsSubscription Service
+        explode: false
+        in: path
+        name: transferId
+        required: true
+        schema:
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: string
+        required: true
+      responses:
+        "204":
+          description: |
+            The Individual NCOF Event Subscription Transfer resource was modified successfully.
+        "307":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RedirectResponse'
+          description: Temporary Redirect
+          headers:
+            Location:
+              description: The URI pointing to the resource located on the redirect
+                target
+              required: true
+              schema:
+                type: string
+            "3gpp-Sbi-Target-Nf-Id":
+              description: |
+                'Identifier of target NF (service) instance towards which the request is redirected'
+              schema:
+                type: string
+        "308":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RedirectResponse'
+          description: Permanent Redirect
+          headers:
+            Location:
+              description: The URI pointing to the resource located on the redirect
+                target
+              required: true
+              schema:
+                type: string
+            "3gpp-Sbi-Target-Nf-Id":
+              description: |
+                'Identifier of target NF (service) instance towards which the request is redirected'
+              schema:
+                type: string
+        "400":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          description: Bad request
+        "401":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          description: Unauthorized
+        "403":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          description: Forbidden
+        "404":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          description: Not Found
+        "411":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          description: Length Required
+        "413":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          description: Content Too Large
+        "415":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          description: Unsupported Media Type
+        "429":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          description: Too Many Requests
+        "500":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          description: Internal Server Error
+        "501":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          description: Not Implemented
+        "502":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          description: Bad Gateway
+        "503":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          description: Service Unavailable
+        default:
+          description: Generic Error
+      security:
+      - {}
+      - oAuth2ClientCredentials:
+        - nncof-eventssubscription
+      - oAuth2ClientCredentials:
+        - nncof-eventssubscription
+        - nncof-eventssubscription:transfer
+      summary: Update an existing Individual NCOF Event Subscription Transfer
+      tags:
+      - Individual NCOF Event Subscription Transfer
+components:
+  responses:
+    "400":
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+      description: Bad request
+    "401":
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+      description: Unauthorized
+    "403":
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+      description: Forbidden
+    "404":
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+      description: Not Found
+    "411":
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+      description: Length Required
+    "413":
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+      description: Content Too Large
+    "415":
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+      description: Unsupported Media Type
+    "429":
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+      description: Too Many Requests
+    "500":
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+      description: Internal Server Error
+    "502":
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+      description: Bad Gateway
+    "503":
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+      description: Service Unavailable
+    default:
+      description: Generic Error
+    "307":
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/RedirectResponse'
+      description: Temporary Redirect
+      headers:
+        Location:
+          description: The URI pointing to the resource located on the redirect target
+          required: true
+          schema:
+            type: string
+        "3gpp-Sbi-Target-Nf-Id":
+          description: |
+            'Identifier of target NF (service) instance towards which the request is redirected'
+          schema:
+            type: string
+    "308":
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/RedirectResponse'
+      description: Permanent Redirect
+      headers:
+        Location:
+          description: The URI pointing to the resource located on the redirect target
+          required: true
+          schema:
+            type: string
+        "3gpp-Sbi-Target-Nf-Id":
+          description: |
+            'Identifier of target NF (service) instance towards which the request is redirected'
+          schema:
+            type: string
+    "501":
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+      description: Not Implemented
+  schemas:
+    NncofEventsSubscription:
+      description: Represents an Individual NCOF Event Subscription resource.
+      example:
+        supportedFeatures: supportedFeatures
+        notificationURI: notificationURI
+        prevSub: prevSub
+        notifCorrId: notifCorrId
+        eventNotifications:
+        - nfLoadLevelInfos:
+          - nfInstanceId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            snssai:
+              sd: sd
+              sst: 37
+            nfStorageUsage: 3
+            nfLoadLevelpeak: 1
+            nfStatus:
+              statusRegistered: 93
+              statusUndiscoverable: 87
+              statusUnregistered: 67
+            nfCpuUsage: 9
+            confidence: 0
+            nfType: null
+            nfSetId: nfSetId
+            nfMemoryUsage: 6
+            nfLoadLevelAverage: 6
+            nfLoadAvgInAoi: 2
+          - nfInstanceId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            snssai:
+              sd: sd
+              sst: 37
+            nfStorageUsage: 3
+            nfLoadLevelpeak: 1
+            nfStatus:
+              statusRegistered: 93
+              statusUndiscoverable: 87
+              statusUnregistered: 67
+            nfCpuUsage: 9
+            confidence: 0
+            nfType: null
+            nfSetId: nfSetId
+            nfMemoryUsage: 6
+            nfLoadLevelAverage: 6
+            nfLoadAvgInAoi: 2
+        - nfLoadLevelInfos:
+          - nfInstanceId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            snssai:
+              sd: sd
+              sst: 37
+            nfStorageUsage: 3
+            nfLoadLevelpeak: 1
+            nfStatus:
+              statusRegistered: 93
+              statusUndiscoverable: 87
+              statusUnregistered: 67
+            nfCpuUsage: 9
+            confidence: 0
+            nfType: null
+            nfSetId: nfSetId
+            nfMemoryUsage: 6
+            nfLoadLevelAverage: 6
+            nfLoadAvgInAoi: 2
+          - nfInstanceId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            snssai:
+              sd: sd
+              sst: 37
+            nfStorageUsage: 3
+            nfLoadLevelpeak: 1
+            nfStatus:
+              statusRegistered: 93
+              statusUndiscoverable: 87
+              statusUnregistered: 67
+            nfCpuUsage: 9
+            confidence: 0
+            nfType: null
+            nfSetId: nfSetId
+            nfMemoryUsage: 6
+            nfLoadLevelAverage: 6
+            nfLoadAvgInAoi: 2
+        consNfInfo: consNfInfo
+        eventSubscriptions:
+        - extraReportReq:
+            endTs: 2000-01-23T04:56:07.000+00:00
+            startTs: 2000-01-23T04:56:07.000+00:00
+          tgtUe:
+            supis:
+            - null
+            - null
+            gpsis:
+            - null
+            - null
+            anyUe: true
+            intGroupIds:
+            - null
+            - null
+          nfLoadLvlThds:
+          - svcExpLevel: 1.2315135
+            nfStorageUsage: 5
+            minTrafficRate: minTrafficRate
+            avgTrafficRate: avgTrafficRate
+            varPacketDelay: 3.6160767
+            nfMemoryUsage: 5
+            speed: 1.0246457
+            avgPacketDelay: 1
+            varPacketLossRate: 7.386282
+            varTrafficRate: 2.302136
+            congLevel: 0
+            nfCpuUsage: 1
+            maxTrafficRate: maxTrafficRate
+            maxPacketDelay: 1
+            nfLoadLevel: 6
+            aggTrafficRate: aggTrafficRate
+            avgPacketLossRate: 202
+            maxPacketLossRate: 414
+          - svcExpLevel: 1.2315135
+            nfStorageUsage: 5
+            minTrafficRate: minTrafficRate
+            avgTrafficRate: avgTrafficRate
+            varPacketDelay: 3.6160767
+            nfMemoryUsage: 5
+            speed: 1.0246457
+            avgPacketDelay: 1
+            varPacketLossRate: 7.386282
+            varTrafficRate: 2.302136
+            congLevel: 0
+            nfCpuUsage: 1
+            maxTrafficRate: maxTrafficRate
+            maxPacketDelay: 1
+            nfLoadLevel: 6
+            aggTrafficRate: aggTrafficRate
+            avgPacketLossRate: 202
+            maxPacketLossRate: 414
+          nfSetIds:
+          - null
+          - null
+          snssaia:
+          - sd: sd
+            sst: 37
+          - sd: sd
+            sst: 37
+          appIds:
+          - null
+          - null
+          nfTypes:
+          - NRF
+          - NRF
+          evtReq:
+            notifMethod: null
+            partitionCriteria:
+            - TAC
+            - TAC
+            grpRepTime: 4
+            notifFlag: ACTIVATE
+            mutingSetting:
+              maxNoOfNotif: 5
+              durationBufferedNotif: 9
+            monDur: 2000-01-23T04:56:07.000+00:00
+            immRep: true
+            maxReportNbr: 0
+            repPeriod: 7
+            sampRatio: 12
+            notifFlagInstruct:
+              bufferedNotifs: SEND_ALL
+              subscription: CLOSE
+          congThresholds:
+          - svcExpLevel: 1.2315135
+            nfStorageUsage: 5
+            minTrafficRate: minTrafficRate
+            avgTrafficRate: avgTrafficRate
+            varPacketDelay: 3.6160767
+            nfMemoryUsage: 5
+            speed: 1.0246457
+            avgPacketDelay: 1
+            varPacketLossRate: 7.386282
+            varTrafficRate: 2.302136
+            congLevel: 0
+            nfCpuUsage: 1
+            maxTrafficRate: maxTrafficRate
+            maxPacketDelay: 1
+            nfLoadLevel: 6
+            aggTrafficRate: aggTrafficRate
+            avgPacketLossRate: 202
+            maxPacketLossRate: 414
+          - svcExpLevel: 1.2315135
+            nfStorageUsage: 5
+            minTrafficRate: minTrafficRate
+            avgTrafficRate: avgTrafficRate
+            varPacketDelay: 3.6160767
+            nfMemoryUsage: 5
+            speed: 1.0246457
+            avgPacketDelay: 1
+            varPacketLossRate: 7.386282
+            varTrafficRate: 2.302136
+            congLevel: 0
+            nfCpuUsage: 1
+            maxTrafficRate: maxTrafficRate
+            maxPacketDelay: 1
+            nfLoadLevel: 6
+            aggTrafficRate: aggTrafficRate
+            avgPacketLossRate: 202
+            maxPacketLossRate: 414
+          anySlice: true
+          notificationMethod: PERIODIC
+          event: SLICE_LOAD_LEVEL
+          exptAnaType: MOBILITY
+          nfInstanceIds:
+          - null
+          - null
+        - extraReportReq:
+            endTs: 2000-01-23T04:56:07.000+00:00
+            startTs: 2000-01-23T04:56:07.000+00:00
+          tgtUe:
+            supis:
+            - null
+            - null
+            gpsis:
+            - null
+            - null
+            anyUe: true
+            intGroupIds:
+            - null
+            - null
+          nfLoadLvlThds:
+          - svcExpLevel: 1.2315135
+            nfStorageUsage: 5
+            minTrafficRate: minTrafficRate
+            avgTrafficRate: avgTrafficRate
+            varPacketDelay: 3.6160767
+            nfMemoryUsage: 5
+            speed: 1.0246457
+            avgPacketDelay: 1
+            varPacketLossRate: 7.386282
+            varTrafficRate: 2.302136
+            congLevel: 0
+            nfCpuUsage: 1
+            maxTrafficRate: maxTrafficRate
+            maxPacketDelay: 1
+            nfLoadLevel: 6
+            aggTrafficRate: aggTrafficRate
+            avgPacketLossRate: 202
+            maxPacketLossRate: 414
+          - svcExpLevel: 1.2315135
+            nfStorageUsage: 5
+            minTrafficRate: minTrafficRate
+            avgTrafficRate: avgTrafficRate
+            varPacketDelay: 3.6160767
+            nfMemoryUsage: 5
+            speed: 1.0246457
+            avgPacketDelay: 1
+            varPacketLossRate: 7.386282
+            varTrafficRate: 2.302136
+            congLevel: 0
+            nfCpuUsage: 1
+            maxTrafficRate: maxTrafficRate
+            maxPacketDelay: 1
+            nfLoadLevel: 6
+            aggTrafficRate: aggTrafficRate
+            avgPacketLossRate: 202
+            maxPacketLossRate: 414
+          nfSetIds:
+          - null
+          - null
+          snssaia:
+          - sd: sd
+            sst: 37
+          - sd: sd
+            sst: 37
+          appIds:
+          - null
+          - null
+          nfTypes:
+          - NRF
+          - NRF
+          evtReq:
+            notifMethod: null
+            partitionCriteria:
+            - TAC
+            - TAC
+            grpRepTime: 4
+            notifFlag: ACTIVATE
+            mutingSetting:
+              maxNoOfNotif: 5
+              durationBufferedNotif: 9
+            monDur: 2000-01-23T04:56:07.000+00:00
+            immRep: true
+            maxReportNbr: 0
+            repPeriod: 7
+            sampRatio: 12
+            notifFlagInstruct:
+              bufferedNotifs: SEND_ALL
+              subscription: CLOSE
+          congThresholds:
+          - svcExpLevel: 1.2315135
+            nfStorageUsage: 5
+            minTrafficRate: minTrafficRate
+            avgTrafficRate: avgTrafficRate
+            varPacketDelay: 3.6160767
+            nfMemoryUsage: 5
+            speed: 1.0246457
+            avgPacketDelay: 1
+            varPacketLossRate: 7.386282
+            varTrafficRate: 2.302136
+            congLevel: 0
+            nfCpuUsage: 1
+            maxTrafficRate: maxTrafficRate
+            maxPacketDelay: 1
+            nfLoadLevel: 6
+            aggTrafficRate: aggTrafficRate
+            avgPacketLossRate: 202
+            maxPacketLossRate: 414
+          - svcExpLevel: 1.2315135
+            nfStorageUsage: 5
+            minTrafficRate: minTrafficRate
+            avgTrafficRate: avgTrafficRate
+            varPacketDelay: 3.6160767
+            nfMemoryUsage: 5
+            speed: 1.0246457
+            avgPacketDelay: 1
+            varPacketLossRate: 7.386282
+            varTrafficRate: 2.302136
+            congLevel: 0
+            nfCpuUsage: 1
+            maxTrafficRate: maxTrafficRate
+            maxPacketDelay: 1
+            nfLoadLevel: 6
+            aggTrafficRate: aggTrafficRate
+            avgPacketLossRate: 202
+            maxPacketLossRate: 414
+          anySlice: true
+          notificationMethod: PERIODIC
+          event: SLICE_LOAD_LEVEL
+          exptAnaType: MOBILITY
+          nfInstanceIds:
+          - null
+          - null
+        failEventReports:
+        - failEventReports
+        - failEventReports
+      properties:
+        eventSubscriptions:
+          description: Subscribed events
+          items:
+            $ref: '#/components/schemas/EventSubscription'
+          minItems: 1
+          title: eventSubscriptions
+          type: array
+        notificationURI:
+          description: String providing an URI formatted according to RFC 3986.
+          title: type
+          type: string
+        notifCorrId:
+          description: Notification correlation identifier.
+          title: notifCorrId
+          type: string
+        supportedFeatures:
+          description: |
+            A string used to indicate the features supported by an API that is used as defined in clause  6.6 in 3GPP TS 29.500. The string shall contain a bitmask indicating supported features in  hexadecimal representation Each character in the string shall take a value of "0" to "9",  "a" to "f" or "A" to "F" and shall represent the support of 4 features as described in  table 5.2.2-3. The most significant character representing the highest-numbered features shall  appear first in the string, and the character representing features 1 to 4 shall appear last  in the string. The list of features and their numbering (starting with 1) are defined  separately for each API. If the string contains a lower number of characters than there are  defined features for an API, all features that would be represented by characters that are not  present in the string are not supported.
+          pattern: "^[A-Fa-f0-9]*$"
+          title: supportedFeatures
+          type: string
+        eventNotifications:
+          items:
+            $ref: '#/components/schemas/EventNotification'
+          minItems: 0
+          title: eventNotifications
+          type: array
+        failEventReports:
+          items:
+            type: string
+          minItems: 1
+          title: failEventReports
+          type: array
+        prevSub:
+          title: prevSub
+          type: string
+        consNfInfo:
+          title: consNfInfo
+          type: string
+      required:
+      - eventSubscriptions
+      title: NncofEventsSubscription
+      type: object
+    EventSubscription:
+      description: Represents a subscription to a single event.
+      example:
+        extraReportReq:
+          endTs: 2000-01-23T04:56:07.000+00:00
+          startTs: 2000-01-23T04:56:07.000+00:00
+        tgtUe:
+          supis:
+          - null
+          - null
+          gpsis:
+          - null
+          - null
+          anyUe: true
+          intGroupIds:
+          - null
+          - null
+        nfLoadLvlThds:
+        - svcExpLevel: 1.2315135
+          nfStorageUsage: 5
+          minTrafficRate: minTrafficRate
+          avgTrafficRate: avgTrafficRate
+          varPacketDelay: 3.6160767
+          nfMemoryUsage: 5
+          speed: 1.0246457
+          avgPacketDelay: 1
+          varPacketLossRate: 7.386282
+          varTrafficRate: 2.302136
+          congLevel: 0
+          nfCpuUsage: 1
+          maxTrafficRate: maxTrafficRate
+          maxPacketDelay: 1
+          nfLoadLevel: 6
+          aggTrafficRate: aggTrafficRate
+          avgPacketLossRate: 202
+          maxPacketLossRate: 414
+        - svcExpLevel: 1.2315135
+          nfStorageUsage: 5
+          minTrafficRate: minTrafficRate
+          avgTrafficRate: avgTrafficRate
+          varPacketDelay: 3.6160767
+          nfMemoryUsage: 5
+          speed: 1.0246457
+          avgPacketDelay: 1
+          varPacketLossRate: 7.386282
+          varTrafficRate: 2.302136
+          congLevel: 0
+          nfCpuUsage: 1
+          maxTrafficRate: maxTrafficRate
+          maxPacketDelay: 1
+          nfLoadLevel: 6
+          aggTrafficRate: aggTrafficRate
+          avgPacketLossRate: 202
+          maxPacketLossRate: 414
+        nfSetIds:
+        - null
+        - null
+        snssaia:
+        - sd: sd
+          sst: 37
+        - sd: sd
+          sst: 37
+        appIds:
+        - null
+        - null
+        nfTypes:
+        - NRF
+        - NRF
+        evtReq:
+          notifMethod: null
+          partitionCriteria:
+          - TAC
+          - TAC
+          grpRepTime: 4
+          notifFlag: ACTIVATE
+          mutingSetting:
+            maxNoOfNotif: 5
+            durationBufferedNotif: 9
+          monDur: 2000-01-23T04:56:07.000+00:00
+          immRep: true
+          maxReportNbr: 0
+          repPeriod: 7
+          sampRatio: 12
+          notifFlagInstruct:
+            bufferedNotifs: SEND_ALL
+            subscription: CLOSE
+        congThresholds:
+        - svcExpLevel: 1.2315135
+          nfStorageUsage: 5
+          minTrafficRate: minTrafficRate
+          avgTrafficRate: avgTrafficRate
+          varPacketDelay: 3.6160767
+          nfMemoryUsage: 5
+          speed: 1.0246457
+          avgPacketDelay: 1
+          varPacketLossRate: 7.386282
+          varTrafficRate: 2.302136
+          congLevel: 0
+          nfCpuUsage: 1
+          maxTrafficRate: maxTrafficRate
+          maxPacketDelay: 1
+          nfLoadLevel: 6
+          aggTrafficRate: aggTrafficRate
+          avgPacketLossRate: 202
+          maxPacketLossRate: 414
+        - svcExpLevel: 1.2315135
+          nfStorageUsage: 5
+          minTrafficRate: minTrafficRate
+          avgTrafficRate: avgTrafficRate
+          varPacketDelay: 3.6160767
+          nfMemoryUsage: 5
+          speed: 1.0246457
+          avgPacketDelay: 1
+          varPacketLossRate: 7.386282
+          varTrafficRate: 2.302136
+          congLevel: 0
+          nfCpuUsage: 1
+          maxTrafficRate: maxTrafficRate
+          maxPacketDelay: 1
+          nfLoadLevel: 6
+          aggTrafficRate: aggTrafficRate
+          avgPacketLossRate: 202
+          maxPacketLossRate: 414
+        anySlice: true
+        notificationMethod: PERIODIC
+        event: SLICE_LOAD_LEVEL
+        exptAnaType: MOBILITY
+        nfInstanceIds:
+        - null
+        - null
+      properties:
+        anySlice:
+          description: |
+            "false" represents not applicable for all slices. "true" represents applicable for all slices.
+          title: AnySlice
+          type: boolean
+        appIds:
+          description: Identification(s) of application to which the subscription
+            applies.
+          items:
+            $ref: '#/components/schemas/ApplicationId'
+          minItems: 1
+          title: appIds
+          type: array
+        event:
+          $ref: '#/components/schemas/NwdafEvent'
+        extraReportReq:
+          $ref: '#/components/schemas/EventReportingRequirement'
+        notificationMethod:
+          $ref: '#/components/schemas/NotificationMethod'
+        nfLoadLvlThds:
+          description: |
+            Shall be supplied in order to start reporting when an average load level is reached.
+          items:
+            $ref: '#/components/schemas/ThresholdLevel'
+          minItems: 1
+          title: nfLoadLvlThds
+          type: array
+        nfInstanceIds:
+          items:
+            $ref: '#/components/schemas/NfInstanceId'
+          title: nfInstanceIds
+          type: array
+        nfSetIds:
+          items:
+            $ref: '#/components/schemas/NfSetId'
+          minItems: 1
+          title: nfSetIds
+          type: array
+        nfTypes:
+          items:
+            $ref: '#/components/schemas/NFType'
+          minItems: 1
+          title: nfTypes
+          type: array
+        snssaia:
+          description: "Identification(s) of network slice to which the subscription\
+            \ applies. It corresponds to snssais in the data model definition of 3GPP\
+            \ TS 29.520. \n"
+          items:
+            $ref: '#/components/schemas/Snssai'
+          minItems: 1
+          title: snssaia
+          type: array
+        tgtUe:
+          $ref: '#/components/schemas/TargetUeInformation'
+        congThresholds:
+          items:
+            $ref: '#/components/schemas/ThresholdLevel'
+          minItems: 1
+          title: congThresholds
+          type: array
+        exptAnaType:
+          $ref: '#/components/schemas/ExpectedAnalyticsType'
+        evtReq:
+          $ref: '#/components/schemas/ReportingInformation'
+      title: EventSubscription
+      type: object
+    AnySlice:
+      description: |
+        "false" represents not applicable for all slices. "true" represents applicable for all slices.
+      title: AnySlice
+      type: boolean
+    event:
+      $ref: '#/components/schemas/NwdafEvent'
+    NwdafEvent:
+      anyOf:
+      - enum:
+        - SLICE_LOAD_LEVEL
+        - NETWORK_PERFORMANCE
+        - NF_LOAD
+        - SERVICE_EXPERIENCE
+        - UE_MOBILITY
+        - UE_COMMUNICATION
+        - QOS_SUSTAINABILITY
+        - ABNORMAL_BEHAVIOUR
+        - USER_DATA_CONGESTION
+        - NSI_LOAD_LEVEL
+        - DN_PERFORMANCE
+        - DISPERSION
+        - RED_TRANS_EXP
+        - WLAN_PERFORMANCE
+        - SM_CONGESTION
+        - PFD_DETERMINATION
+        - PDU_SESSION_TRAFFIC
+        - E2E_DATA_VOL_TRANS_TIME
+        - MOVEMENT_BEHAVIOUR
+        - LOC_ACCURACY
+        - RELATIVE_PROXIMITY
+        - SIGNALLING_STORM
+        type: string
+      - description: |
+          This string provides forward-compatibility with future extensions to the enumeration but is not used to encode content defined in the present version of this API.
+        type: string
+      description: "Describes the NCOF Events.  \nPossible values are:\n- SLICE_LOAD_LEVEL:\
+        \ Indicates that the event subscribed is load level information of Network\n\
+        \  Slice.\n- NETWORK_PERFORMANCE: Indicates that the event subscribed is network\
+        \ performance\n  information.\n- NF_LOAD: Indicates that the event subscribed\
+        \ is load level and status of one or several\n  Network Functions.\n- SERVICE_EXPERIENCE:\
+        \ Indicates that the event subscribed is service experience.\n- UE_MOBILITY:\
+        \ Indicates that the event subscribed is UE mobility information.\n- UE_COMMUNICATION:\
+        \ Indicates that the event subscribed is UE communication information.\n-\
+        \ QOS_SUSTAINABILITY: Indicates that the event subscribed is QoS sustainability.\n\
+        - ABNORMAL_BEHAVIOUR: Indicates that the event subscribed is abnormal behaviour.\n\
+        - USER_DATA_CONGESTION: Indicates that the event subscribed is user data congestion\n\
+        \  information.\n- NSI_LOAD_LEVEL: Indicates that the event subscribed is\
+        \ load level information of Network\n  Slice and the optionally associated\
+        \ Network Slice Instance.\n- DN_PERFORMANCE: Indicates that the event subscribed\
+        \ is DN performance information.\n- DISPERSION: Indicates that the event subscribed\
+        \ is dispersion information.\n- RED_TRANS_EXP: Indicates that the event subscribed\
+        \ is redundant transmission experience.\n- WLAN_PERFORMANCE: Indicates that\
+        \ the event subscribed is WLAN performance.\n- SM_CONGESTION: Indicates the\
+        \ Session Management Congestion Control Experience information\n  for specific\
+        \ DNN and/or S-NSSAI.\n- PFD_DETERMINATION: Indicates that the event subscribed\
+        \ is the PFD Determination nformation\n  for known application identifier(s).\n\
+        - PDU_SESSION_TRAFFIC: Indicates that the event subscribed is the PDU Session\
+        \ traffic\n  information.\n- E2E_DATA_VOL_TRANS_TIME: Indicates that the event\
+        \ subscribed is of E2E data volume \n  transfer time.\n- MOVEMENT_BEHAVIOUR:\
+        \ Indicates that the event subscribed is the Movement Behaviour\n  information.\n\
+        - LOC_ACCURACY: Indicates that the event subscribed is of location accuracy.\n\
+        - RELATIVE_PROXIMITY: Indicates that the event subscribed is the Relative\
+        \ Proximity\n  information.\n- SIGNALLING_STORM: Indicates that the event\
+        \ subscribed is the Signalling Storm information.\n"
+      title: NwdafEvent
+    EventReportingRequirement:
+      description: Represents the type of reporting that the subscription requires.
+      example:
+        endTs: 2000-01-23T04:56:07.000+00:00
+        startTs: 2000-01-23T04:56:07.000+00:00
+      properties:
+        startTs:
+          description: string with format 'date-time' as defined in OpenAPI.
+          format: date-time
+          title: DateTime
+          type: string
+        endTs:
+          description: string with format 'date-time' as defined in OpenAPI.
+          format: date-time
+          title: DateTime
+          type: string
+      title: EventReportingRequirement
+      type: object
+    NotificationMethod:
+      anyOf:
+      - enum:
+        - PERIODIC
+        - THRESHOLD
+        type: string
+      - description: |
+          This string provides forward-compatibility with future extensions to the enumeration but is not used to encode content defined in the present version of this API.
+        type: string
+      description: "Represents the notification methods for the subscribed events.\
+        \  \nPossible values are:\n- PERIODIC: The notification of the subscribed\
+        \ NWDAF Event is periodical. The period\n  between the notifications is identified\
+        \ by repetitionPeriod and represents time in\n  seconds.\n- THRESHOLD: The\
+        \ subscribe of NWDAF Event is upon threshold exceeded.\n"
+      title: NotificationMethod
+    ThresholdLevel:
+      description: Represents a threshold level.
+      example:
+        svcExpLevel: 1.2315135
+        nfStorageUsage: 5
+        minTrafficRate: minTrafficRate
+        avgTrafficRate: avgTrafficRate
+        varPacketDelay: 3.6160767
+        nfMemoryUsage: 5
+        speed: 1.0246457
+        avgPacketDelay: 1
+        varPacketLossRate: 7.386282
+        varTrafficRate: 2.302136
+        congLevel: 0
+        nfCpuUsage: 1
+        maxTrafficRate: maxTrafficRate
+        maxPacketDelay: 1
+        nfLoadLevel: 6
+        aggTrafficRate: aggTrafficRate
+        avgPacketLossRate: 202
+        maxPacketLossRate: 414
+      properties:
+        congLevel:
+          title: congLevel
+          type: integer
+        nfLoadLevel:
+          title: nfLoadLevel
+          type: integer
+        nfCpuUsage:
+          title: nfCpuUsage
+          type: integer
+        nfMemoryUsage:
+          title: nfMemoryUsage
+          type: integer
+        nfStorageUsage:
+          title: nfStorageUsage
+          type: integer
+        avgTrafficRate:
+          description: |
+            String representing a bit rate; the prefixes follow the standard symbols from The International System of Units, and represent x1000 multipliers, with the exception that prefix "K" is used to represent the standard symbol "k".
+          pattern: ^\d+(\.\d+)? (bps|Kbps|Mbps|Gbps|Tbps)$
+          title: BitRate
+          type: string
+        maxTrafficRate:
+          description: |
+            String representing a bit rate; the prefixes follow the standard symbols from The International System of Units, and represent x1000 multipliers, with the exception that prefix "K" is used to represent the standard symbol "k".
+          pattern: ^\d+(\.\d+)? (bps|Kbps|Mbps|Gbps|Tbps)$
+          title: BitRate
+          type: string
+        minTrafficRate:
+          description: |
+            String representing a bit rate; the prefixes follow the standard symbols from The International System of Units, and represent x1000 multipliers, with the exception that prefix "K" is used to represent the standard symbol "k".
+          pattern: ^\d+(\.\d+)? (bps|Kbps|Mbps|Gbps|Tbps)$
+          title: BitRate
+          type: string
+        aggTrafficRate:
+          description: |
+            String representing a bit rate; the prefixes follow the standard symbols from The International System of Units, and represent x1000 multipliers, with the exception that prefix "K" is used to represent the standard symbol "k".
+          pattern: ^\d+(\.\d+)? (bps|Kbps|Mbps|Gbps|Tbps)$
+          title: BitRate
+          type: string
+        varTrafficRate:
+          description: string with format 'float' as defined in OpenAPI.
+          format: float
+          title: Float
+          type: number
+        avgPacketDelay:
+          description: |
+            Unsigned integer indicating Packet Delay Budget (see clauses 5.7.3.4 and 5.7.4 of 3GPP TS 23.501), expressed in milliseconds.
+          minimum: 1
+          title: PacketDelBudget
+          type: integer
+        maxPacketDelay:
+          description: |
+            Unsigned integer indicating Packet Delay Budget (see clauses 5.7.3.4 and 5.7.4 of 3GPP TS 23.501), expressed in milliseconds.
+          minimum: 1
+          title: PacketDelBudget
+          type: integer
+        varPacketDelay:
+          description: string with format 'float' as defined in OpenAPI.
+          format: float
+          title: Float
+          type: number
+        avgPacketLossRate:
+          description: |
+            Unsigned integer indicating Packet Loss Rate (see clauses 5.7.2.8 and 5.7.4 of 3GPP TS 23.501), expressed in tenth of percent.
+          maximum: 1000
+          minimum: 0
+          title: PacketLossRate
+          type: integer
+        maxPacketLossRate:
+          description: |
+            Unsigned integer indicating Packet Loss Rate (see clauses 5.7.2.8 and 5.7.4 of 3GPP TS 23.501), expressed in tenth of percent.
+          maximum: 1000
+          minimum: 0
+          title: PacketLossRate
+          type: integer
+        varPacketLossRate:
+          description: string with format 'float' as defined in OpenAPI.
+          format: float
+          title: Float
+          type: number
+        svcExpLevel:
+          description: string with format 'float' as defined in OpenAPI.
+          format: float
+          title: Float
+          type: number
+        speed:
+          description: string with format 'float' as defined in OpenAPI.
+          format: float
+          title: Float
+          type: number
+      title: ThresholdLevel
+      type: object
+    NFType:
+      anyOf:
+      - enum:
+        - NRF
+        - UDM
+        - AMF
+        - SMF
+        - AUSF
+        - NEF
+        - PCF
+        - SMSF
+        - NSSF
+        - UDR
+        - LMF
+        - GMLC
+        - 5G_EIR
+        - SEPP
+        - UPF
+        - N3IWF
+        - AF
+        - UDSF
+        - BSF
+        - CHF
+        - NWDAF
+        - PCSCF
+        - CBCF
+        - HSS
+        - UCMF
+        - SOR_AF
+        - SPAF
+        - MME
+        - SCSAS
+        - SCEF
+        - SCP
+        - NSSAAF
+        - ICSCF
+        - SCSCF
+        - DRA
+        - IMS_AS
+        - AANF
+        - 5G_DDNMF
+        - NSACF
+        - MFAF
+        - EASDF
+        - DCCF
+        - MB_SMF
+        - TSCTSF
+        - ADRF
+        - GBA_BSF
+        - CEF
+        - MB_UPF
+        - NSWOF
+        - PKMF
+        - MNPF
+        - SMS_GMSC
+        - SMS_IWMSC
+        - MBSF
+        - MBSTF
+        - PANF
+        - IP_SM_GW
+        - SMS_ROUTER
+        - DCSF
+        - MRF
+        - MRFP
+        - MF
+        - SLPKMF
+        - RH
+        - EIF
+        type: string
+      - type: string
+      description: NF types known to NRF
+      title: NFType
+    TargetUeInformation:
+      description: Identifies the target UE information.
+      example:
+        supis:
+        - null
+        - null
+        gpsis:
+        - null
+        - null
+        anyUe: true
+        intGroupIds:
+        - null
+        - null
+      properties:
+        anyUe:
+          description: |
+            Identifies any UE when setting to "true". Default value is "false" if omitted.
+          title: anyUe
+          type: boolean
+        supis:
+          items:
+            $ref: '#/components/schemas/Supi'
+          minItems: 1
+          title: supis
+          type: array
+        gpsis:
+          items:
+            $ref: '#/components/schemas/Gpsi'
+          minItems: 1
+          title: gpsis
+          type: array
+        intGroupIds:
+          items:
+            $ref: '#/components/schemas/GroupId'
+          minItems: 1
+          title: intGroupIds
+          type: array
+      title: TargetUeInformation
+      type: object
+    ExpectedAnalyticsType:
+      anyOf:
+      - enum:
+        - MOBILITY
+        - COMMUN
+        - MOBILITY_AND_COMMUN
+        type: string
+      - description: |
+          This string provides forward-compatibility with future extensions to the enumeration but is not used to encode content defined in the present version of this API.
+        type: string
+      description: "Represents the expected UE analytics type.  \nPossible values\
+        \ are:\n- MOBILITY: Mobility related abnormal behaviour analytics is expected\
+        \ by the consumer.\n- COMMUN: Communication related abnormal behaviour analytics\
+        \ is expected by the consumer.\n- MOBILITY_AND_COMMUN: Both mobility and communication\
+        \ related abnormal behaviour analytics\n  is expected by the consumer.\n \
+        \ \n"
+      title: ExpectedAnalyticsType
+    ReportingInformation:
+      description: Represents the type of reporting that the subscription requires.
+      example:
+        notifMethod: null
+        partitionCriteria:
+        - TAC
+        - TAC
+        grpRepTime: 4
+        notifFlag: ACTIVATE
+        mutingSetting:
+          maxNoOfNotif: 5
+          durationBufferedNotif: 9
+        monDur: 2000-01-23T04:56:07.000+00:00
+        immRep: true
+        maxReportNbr: 0
+        repPeriod: 7
+        sampRatio: 12
+        notifFlagInstruct:
+          bufferedNotifs: SEND_ALL
+          subscription: CLOSE
+      properties:
+        immRep:
+          title: immRep
+          type: boolean
+        notifMethod:
+          $ref: '#/components/schemas/NotificationMethod'
+        maxReportNbr:
+          description: "Unsigned Integer, i.e. only value 0 and integers above 0 are\
+            \ permissible."
+          minimum: 0
+          title: Uinteger
+          type: integer
+        monDur:
+          description: string with format 'date-time' as defined in OpenAPI.
+          format: date-time
+          title: DateTime
+          type: string
+        repPeriod:
+          description: indicating a time in seconds.
+          title: DurationSec
+          type: integer
+        sampRatio:
+          description: "Unsigned integer indicating Sampling Ratio (see clauses 4.15.1\
+            \ of 3GPP TS 23.502), expressed in percent. \n"
+          maximum: 100
+          minimum: 1
+          title: SamplingRatio
+          type: integer
+        partitionCriteria:
+          description: Criteria for partitioning the UEs before applying the sampling
+            ratio.
+          items:
+            $ref: '#/components/schemas/PartitioningCriteria'
+          minItems: 1
+          title: partitionCriteria
+          type: array
+        grpRepTime:
+          description: indicating a time in seconds.
+          title: DurationSec
+          type: integer
+        notifFlag:
+          $ref: '#/components/schemas/NotificationFlag'
+        notifFlagInstruct:
+          $ref: '#/components/schemas/MutingExceptionInstructions'
+        mutingSetting:
+          $ref: '#/components/schemas/MutingNotificationsSettings'
+      title: ReportingInformation
+      type: object
+    EventNotification:
+      description: Represents a notification on events that occurred.
+      example:
+        nfLoadLevelInfos:
+        - nfInstanceId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          snssai:
+            sd: sd
+            sst: 37
+          nfStorageUsage: 3
+          nfLoadLevelpeak: 1
+          nfStatus:
+            statusRegistered: 93
+            statusUndiscoverable: 87
+            statusUnregistered: 67
+          nfCpuUsage: 9
+          confidence: 0
+          nfType: null
+          nfSetId: nfSetId
+          nfMemoryUsage: 6
+          nfLoadLevelAverage: 6
+          nfLoadAvgInAoi: 2
+        - nfInstanceId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          snssai:
+            sd: sd
+            sst: 37
+          nfStorageUsage: 3
+          nfLoadLevelpeak: 1
+          nfStatus:
+            statusRegistered: 93
+            statusUndiscoverable: 87
+            statusUnregistered: 67
+          nfCpuUsage: 9
+          confidence: 0
+          nfType: null
+          nfSetId: nfSetId
+          nfMemoryUsage: 6
+          nfLoadLevelAverage: 6
+          nfLoadAvgInAoi: 2
+      properties:
+        nfLoadLevelInfos:
+          items:
+            $ref: '#/components/schemas/NfLoadLevelInformation'
+          title: nfLoadLevelInfos
+          type: array
+      title: EventNotification
+      type: object
+    NfLoadLevelInformation:
+      allOf:
+      - required:
+        - nfType
+      - required:
+        - nfInstanceId
+      - anyOf: []
+        nullable: true
+      description: Represents load level information of a given NF instance.
+      example:
+        nfInstanceId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        snssai:
+          sd: sd
+          sst: 37
+        nfStorageUsage: 3
+        nfLoadLevelpeak: 1
+        nfStatus:
+          statusRegistered: 93
+          statusUndiscoverable: 87
+          statusUnregistered: 67
+        nfCpuUsage: 9
+        confidence: 0
+        nfType: null
+        nfSetId: nfSetId
+        nfMemoryUsage: 6
+        nfLoadLevelAverage: 6
+        nfLoadAvgInAoi: 2
+      properties:
+        nfType:
+          $ref: '#/components/schemas/NFType'
+        nfInstanceId:
+          description: "String uniquely identifying a NF instance. The format of the\
+            \ NF Instance ID shall be a  Universally Unique Identifier (UUID) version\
+            \ 4, as described in IETF RFC 4122. \n"
+          format: uuid
+          title: NfInstanceId
+          type: string
+        nfSetId:
+          description: "NF Set Identifier (see clause 28.12 of 3GPP TS 23.003), formatted\
+            \ as the following string \"set<Set ID>.<nftype>set.5gc.mnc<MNC>.mcc<MCC>\"\
+            , or  \"set<SetID>.<NFType>set.5gc.nid<NID>.mnc<MNC>.mcc<MCC>\" with \
+            \ <MCC> encoded as defined in clause 5.4.2 (\"Mcc\" data type definition)\
+            \  <MNC> encoding the Mobile Network Code part of the PLMN, comprising\
+            \ 3 digits. \n  If there are only 2 significant digits in the MNC, one\
+            \ \"0\" digit shall be inserted \n  at the left side to fill the 3 digits\
+            \ coding of MNC.  Pattern: '^[0-9]{3}$'\n<NFType> encoded as a value defined\
+            \ in Table 6.1.6.3.3-1 of 3GPP TS 29.510 but \n  with lower case characters\
+            \ <Set ID> encoded as a string of characters consisting of \n  alphabetic\
+            \ characters (A-Z and a-z), digits (0-9) and/or the hyphen (-) and that\
+            \ \n  shall end with either an alphabetic character or a digit. \n"
+          title: NfSetId
+          type: string
+        nfStatus:
+          $ref: '#/components/schemas/NfStatus'
+        nfCpuUsage:
+          title: nfCpuUsage
+          type: integer
+        nfMemoryUsage:
+          title: nfMemoryUsage
+          type: integer
+        nfStorageUsage:
+          title: nfStorageUsage
+          type: integer
+        nfLoadLevelAverage:
+          title: nfLoadLevelAverage
+          type: integer
+        nfLoadLevelpeak:
+          title: nfLoadLevelpeak
+          type: integer
+        nfLoadAvgInAoi:
+          title: nfLoadAvgInAoi
+          type: integer
+        snssai:
+          $ref: '#/components/schemas/Snssai'
+        confidence:
+          description: "Unsigned Integer, i.e. only value 0 and integers above 0 are\
+            \ permissible."
+          minimum: 0
+          title: Uinteger
+          type: integer
+      title: NfLoadLevelInformation
+      type: object
+    NfStatus:
+      anyOf: []
+      description: Contains the percentage of time spent on various NF states.
+      example:
+        statusRegistered: 93
+        statusUndiscoverable: 87
+        statusUnregistered: 67
+      nullable: true
+      properties:
+        statusRegistered:
+          description: "Unsigned integer indicating Sampling Ratio (see clauses 4.15.1\
+            \ of 3GPP TS 23.502), expressed in percent. \n"
+          maximum: 100
+          minimum: 1
+          title: SamplingRatio
+          type: integer
+        statusUnregistered:
+          description: "Unsigned integer indicating Sampling Ratio (see clauses 4.15.1\
+            \ of 3GPP TS 23.502), expressed in percent. \n"
+          maximum: 100
+          minimum: 1
+          title: SamplingRatio
+          type: integer
+        statusUndiscoverable:
+          description: "Unsigned integer indicating Sampling Ratio (see clauses 4.15.1\
+            \ of 3GPP TS 23.502), expressed in percent. \n"
+          maximum: 100
+          minimum: 1
+          title: SamplingRatio
+          type: integer
+      title: NfStatus
+      type: object
+    ProblemDetails:
+      description: Provides additional information in an error response.
+      properties:
+        type:
+          description: String providing an URI formatted according to RFC 3986.
+          title: type
+          type: string
+        title:
+          title: title
+          type: string
+        status:
+          title: status
+          type: integer
+        detail:
+          description: A human-readable explanation specific to this occurrence of
+            the problem.
+          title: detail
+          type: string
+        instance:
+          description: String providing an URI formatted according to RFC 3986.
+          title: type
+          type: string
+        cause:
+          description: |
+            A machine-readable application error cause specific to this occurrence of the problem.  This IE should be present and provide application-related error information, if available.
+          title: cause
+          type: string
+        invalidParams:
+          items:
+            $ref: '#/components/schemas/InvalidParam'
+          minItems: 1
+          title: invalidParams
+          type: array
+        supportedFeatures:
+          description: |
+            A string used to indicate the features supported by an API that is used as defined in clause  6.6 in 3GPP TS 29.500. The string shall contain a bitmask indicating supported features in  hexadecimal representation Each character in the string shall take a value of "0" to "9",  "a" to "f" or "A" to "F" and shall represent the support of 4 features as described in  table 5.2.2-3. The most significant character representing the highest-numbered features shall  appear first in the string, and the character representing features 1 to 4 shall appear last  in the string. The list of features and their numbering (starting with 1) are defined  separately for each API. If the string contains a lower number of characters than there are  defined features for an API, all features that would be represented by characters that are not  present in the string are not supported.
+          pattern: "^[A-Fa-f0-9]*$"
+          title: supportedFeatures
+          type: string
+        supportedApiVersions:
+          items:
+            type: string
+          minItems: 1
+          title: supportedApiVersions
+          type: array
+      title: ProblemDetails
+      type: object
+    Uri:
+      description: String providing an URI formatted according to RFC 3986.
+      title: type
+      type: string
+    InvalidParam:
+      description: It contains an invalid parameter and a related description.
+      properties:
+        param:
+          description: |
+            If the invalid parameter is an attribute in a JSON body, this IE shall contain the  attribute's name and shall be encoded as a JSON Pointer. If the invalid parameter is  an HTTP header, this IE shall be formatted as the concatenation of the string "header "  plus the name of such header. If the invalid parameter is a query parameter, this IE  shall be formatted as the concatenation of the string "query " plus the name of such  query parameter. If the invalid parameter is a variable part in the path of a resource  URI, this IE shall contain the name of the variable, including the symbols "{" and "}"  used in OpenAPI specification as the notation to represent variable path segments.
+          title: param
+          type: string
+        reason:
+          description: |
+            A human-readable reason, e.g. "must be a positive integer". In cases involving failed  operations in a PATCH request, the reason string should identify the operation that  failed using the operation's array index to assist in correlation of the invalid  parameter with the failed operation, e.g." Replacement value invalid for attribute  (failed operation index= 4)"
+          title: reason
+          type: string
+      required:
+      - param
+      title: InvalidParam
+      type: object
+    SupportedFeatures:
+      description: |
+        A string used to indicate the features supported by an API that is used as defined in clause  6.6 in 3GPP TS 29.500. The string shall contain a bitmask indicating supported features in  hexadecimal representation Each character in the string shall take a value of "0" to "9",  "a" to "f" or "A" to "F" and shall represent the support of 4 features as described in  table 5.2.2-3. The most significant character representing the highest-numbered features shall  appear first in the string, and the character representing features 1 to 4 shall appear last  in the string. The list of features and their numbering (starting with 1) are defined  separately for each API. If the string contains a lower number of characters than there are  defined features for an API, all features that would be represented by characters that are not  present in the string are not supported.
+      pattern: "^[A-Fa-f0-9]*$"
+      title: supportedFeatures
+      type: string
+    RedirectResponse:
+      description: |
+        The response shall include a Location header field containing a different URI  (pointing to a different URI of an other service instance), or the same URI if a request  is redirected to the same target resource via a different SCP.
+      example:
+        targetSepp: targetSepp
+        cause: cause
+        targetScp: targetScp
+      properties:
+        cause:
+          title: cause
+          type: string
+        targetScp:
+          description: String providing an URI formatted according to RFC 3986.
+          title: type
+          type: string
+        targetSepp:
+          description: String providing an URI formatted according to RFC 3986.
+          title: type
+          type: string
+      title: RedirectResponse
+      type: object
+    ApplicationId:
+      description: String providing an application identifier.
+      title: ApplicationId
+      type: string
+    NfInstanceId:
+      description: "String uniquely identifying a NF instance. The format of the NF\
+        \ Instance ID shall be a  Universally Unique Identifier (UUID) version 4,\
+        \ as described in IETF RFC 4122. \n"
+      format: uuid
+      title: NfInstanceId
+      type: string
+    NfSetId:
+      description: "NF Set Identifier (see clause 28.12 of 3GPP TS 23.003), formatted\
+        \ as the following string \"set<Set ID>.<nftype>set.5gc.mnc<MNC>.mcc<MCC>\"\
+        , or  \"set<SetID>.<NFType>set.5gc.nid<NID>.mnc<MNC>.mcc<MCC>\" with  <MCC>\
+        \ encoded as defined in clause 5.4.2 (\"Mcc\" data type definition)  <MNC>\
+        \ encoding the Mobile Network Code part of the PLMN, comprising 3 digits.\
+        \ \n  If there are only 2 significant digits in the MNC, one \"0\" digit shall\
+        \ be inserted \n  at the left side to fill the 3 digits coding of MNC.  Pattern:\
+        \ '^[0-9]{3}$'\n<NFType> encoded as a value defined in Table 6.1.6.3.3-1 of\
+        \ 3GPP TS 29.510 but \n  with lower case characters <Set ID> encoded as a\
+        \ string of characters consisting of \n  alphabetic characters (A-Z and a-z),\
+        \ digits (0-9) and/or the hyphen (-) and that \n  shall end with either an\
+        \ alphabetic character or a digit. \n"
+      title: NfSetId
+      type: string
+    Snssai:
+      description: |
+        When Snssai needs to be converted to string (e.g. when used in maps as key), the string shall be composed of one to three digits "sst" optionally followed by "-" and 6 hexadecimal digits "sd".
+      example:
+        sd: sd
+        sst: 37
+      properties:
+        sst:
+          description: "Unsigned integer, within the range 0 to 255, representing\
+            \ the Slice/Service Type.  It indicates the expected Network Slice behaviour\
+            \ in terms of features and services. Values 0 to 127 correspond to the\
+            \ standardized SST range. Values 128 to 255 correspond  to the Operator-specific\
+            \ range. See clause 28.4.2 of 3GPP TS 23.003. Standardized values are\
+            \ defined in clause 5.15.2.2 of 3GPP TS 23.501. \n"
+          maximum: 255
+          minimum: 0
+          title: sst
+          type: integer
+        sd:
+          description: |
+            3-octet string, representing the Slice Differentiator, in hexadecimal representation. Each character in the string shall take a value of "0" to "9", "a" to "f" or "A" to "F" and shall represent 4 bits. The most significant character representing the 4 most significant bits of the SD shall appear first in the string, and the character representing the 4 least significant bit of the SD shall appear last in the string. This is an optional parameter that complements the Slice/Service type(s) to allow to  differentiate amongst multiple Network Slices of the same Slice/Service type. This IE shall be absent if no SD value is associated with the SST.
+          pattern: "^[A-Fa-f0-9]{6}$"
+          title: sd
+          type: string
+      required:
+      - sst
+      title: Snssai
+      type: object
+    DateTime:
+      description: string with format 'date-time' as defined in OpenAPI.
+      format: date-time
+      title: DateTime
+      type: string
+    BitRate:
+      description: |
+        String representing a bit rate; the prefixes follow the standard symbols from The International System of Units, and represent x1000 multipliers, with the exception that prefix "K" is used to represent the standard symbol "k".
+      pattern: ^\d+(\.\d+)? (bps|Kbps|Mbps|Gbps|Tbps)$
+      title: BitRate
+      type: string
+    Float:
+      description: string with format 'float' as defined in OpenAPI.
+      format: float
+      title: Float
+      type: number
+    PacketDelBudget:
+      description: |
+        Unsigned integer indicating Packet Delay Budget (see clauses 5.7.3.4 and 5.7.4 of 3GPP TS 23.501), expressed in milliseconds.
+      minimum: 1
+      title: PacketDelBudget
+      type: integer
+    PacketLossRate:
+      description: |
+        Unsigned integer indicating Packet Loss Rate (see clauses 5.7.2.8 and 5.7.4 of 3GPP TS 23.501), expressed in tenth of percent.
+      maximum: 1000
+      minimum: 0
+      title: PacketLossRate
+      type: integer
+    Supi:
+      description: "String identifying a Supi that shall contain either an IMSI, a\
+        \ network specific identifier,\na Global Cable Identifier (GCI) or a Global\
+        \ Line Identifier (GLI) as specified in clause \n2.2A of 3GPP TS 23.003. It\
+        \ shall be formatted as follows\n - for an IMSI \"imsi-<imsi>\", where <imsi>\
+        \ shall be formatted according to clause 2.2\n   of 3GPP TS 23.003 that describes\
+        \ an IMSI.\n - for a network specific identifier \"nai-<nai>, where <nai>\
+        \ shall be formatted\n   according to clause 28.7.2 of 3GPP TS 23.003 that\
+        \ describes an NAI.\n - for a GCI \"gci-<gci>\", where <gci> shall be formatted\
+        \ according to clause 28.15.2\n   of 3GPP TS 23.003.\n - for a GLI \"gli-<gli>\"\
+        , where <gli> shall be formatted according to clause 28.16.2 of\n   3GPP TS\
+        \ 23.003.To enable that the value is used as part of an URI, the string shall\n\
+        \   only contain characters allowed according to the \"lower-with-hyphen\"\
+        \ naming convention\n   defined in 3GPP TS 29.501.\n"
+      pattern: "^(imsi-[0-9]{5,15}|nai-.+|gci-.+|gli-.+|.+)$"
+      title: Supi
+      type: string
+    Gpsi:
+      description: "String identifying a Gpsi shall contain either an External Id\
+        \ or an MSISDN.  It shall be formatted as follows -External Identifier= \"\
+        extid-'extid', where 'extid'  shall be formatted according to clause 19.7.2\
+        \ of 3GPP TS 23.003 that describes an  External Identifier. \n"
+      pattern: "^(msisdn-[0-9]{5,15}|extid-[^@]+@[^@]+|.+)$"
+      title: Gpsi
+      type: string
+    GroupId:
+      description: "String identifying a group of devices network internal globally\
+        \ unique ID which identifies a set of IMSIs, as specified in clause 19.9 of\
+        \ 3GPP TS 23.003. \n"
+      pattern: "^[A-Fa-f0-9]{8}-[0-9]{3}-[0-9]{2,3}-([A-Fa-f0-9][A-Fa-f0-9]){1,10}$"
+      title: GroupId
+      type: string
+    Uinteger:
+      description: "Unsigned Integer, i.e. only value 0 and integers above 0 are permissible."
+      minimum: 0
+      title: Uinteger
+      type: integer
+    DurationSec:
+      description: indicating a time in seconds.
+      title: DurationSec
+      type: integer
+    SamplingRatio:
+      description: "Unsigned integer indicating Sampling Ratio (see clauses 4.15.1\
+        \ of 3GPP TS 23.502), expressed in percent. \n"
+      maximum: 100
+      minimum: 1
+      title: SamplingRatio
+      type: integer
+    PartitioningCriteria:
+      anyOf:
+      - enum:
+        - TAC
+        - SUBPLMN
+        - GEOAREA
+        - SNSSAI
+        - DNN
+        type: string
+      - description: |
+          This string provides forward-compatibility with future extensions to the enumeration but is not used to encode content defined in the present version of this API.
+        type: string
+      description: |
+        Possible values are:
+        - "TAC": Type Allocation Code
+        - "SUBPLMN": Subscriber PLMN ID
+        - "GEOAREA": Geographical area, i.e. list(s) of TAI(s)
+        - "SNSSAI": S-NSSAI
+        - "DNN": DNN
+      title: PartitioningCriteria
+    NotificationFlag:
+      anyOf:
+      - enum:
+        - ACTIVATE
+        - DEACTIVATE
+        - RETRIEVAL
+        type: string
+      - description: "This string provides forward-compatibility with future extensions\
+          \ to the enumeration but is not used to encode content defined in the present\
+          \ version of this API. \n"
+        type: string
+      description: "Possible values are:\n- ACTIVATE: The event notification is activated.\n\
+        - DEACTIVATE: The event notification is deactivated and shall be muted. The\
+        \ available\n   event(s) shall be stored.\n- RETRIEVAL: The event notification\
+        \ shall be sent to the NF service consumer(s),\n  after that, is muted again.\
+        \ \n"
+      title: NotificationFlag
+    MutingExceptionInstructions:
+      description: |
+        Indicates to an Event producer NF instructions for the subscription and stored events when an exception (e.g. full buffer) occurs at the Event producer NF while the event is muted.
+      example:
+        bufferedNotifs: SEND_ALL
+        subscription: CLOSE
+      properties:
+        bufferedNotifs:
+          $ref: '#/components/schemas/BufferedNotificationsAction'
+        subscription:
+          $ref: '#/components/schemas/SubscriptionAction'
+      title: MutingExceptionInstructions
+      type: object
+    BufferedNotificationsAction:
+      anyOf:
+      - enum:
+        - SEND_ALL
+        - DISCARD_ALL
+        - DROP_OLD
+        type: string
+      - type: string
+      description: |
+        Indicates the required action by the event producer NF on the buffered Notifications.
+      title: BufferedNotificationsAction
+    SubscriptionAction:
+      anyOf:
+      - enum:
+        - CLOSE
+        - CONTINUE_WITH_MUTING
+        - CONTINUE_WITHOUT_MUTING
+        type: string
+      - type: string
+      description: |
+        Indicates the required action by the event producer NF on the event subscription if an exception occurs while the event is muted.
+      title: SubscriptionAction
+    MutingNotificationsSettings:
+      description: |
+        Indicates the Event producer NF settings to the Event consumer NF
+      example:
+        maxNoOfNotif: 5
+        durationBufferedNotif: 9
+      properties:
+        maxNoOfNotif:
+          title: maxNoOfNotif
+          type: integer
+        durationBufferedNotif:
+          description: indicating a time in seconds.
+          title: DurationSec
+          type: integer
+      title: MutingNotificationsSettings
+      type: object
+  securitySchemes:
+    oAuth2ClientCredentials:
+      flows:
+        clientCredentials:
+          scopes:
+            nncof-eventssubscription: Access to the Nncof_EventsSubscription API
+            nncof-eventssubscription:transfer: |
+              Access to service operations applying to NCOF event subscription transfer.
+          tokenUrl: "{nrfApiRoot}/oauth2/token"
+      type: oauth2
