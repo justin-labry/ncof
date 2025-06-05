@@ -34,6 +34,10 @@ ns_pkg = openapi_server.impl
 for _, name, _ in pkgutil.iter_modules(ns_pkg.__path__, ns_pkg.__name__ + "."):
     importlib.import_module(name)
 
+def get_subscription_service(
+) -> BaseNCOFEventsSubscriptionsApi:
+    # return SubscriptionService(db)
+    return BaseNCOFEventsSubscriptionsApi.subclasses[0]()
 
 @router.post(
     "/subscriptions",
@@ -58,10 +62,14 @@ for _, name, _ in pkgutil.iter_modules(ns_pkg.__path__, ns_pkg.__name__ + "."):
 )
 async def create_ncof_events_subscription(
     nncof_events_subscription: NncofEventsSubscription = Body(None, description=""),
+    subscription_service: BaseNCOFEventsSubscriptionsApi = Depends(
+        get_subscription_service
+    ),
     token_oAuth2ClientCredentials: TokenModel = Security(
         get_token_oAuth2ClientCredentials, scopes=["nncof-eventssubscription"]
     ),
 ) -> None:
     if not BaseNCOFEventsSubscriptionsApi.subclasses:
         raise HTTPException(status_code=500, detail="Not implemented")
-    return await BaseNCOFEventsSubscriptionsApi.subclasses[0]().create_ncof_events_subscription(nncof_events_subscription)
+    # return await BaseNCOFEventsSubscriptionsApi.subclasses[0]().create_ncof_events_subscription(nncof_events_subscription)
+    return await subscription_service.create_ncof_events_subscription(nncof_events_subscription)
