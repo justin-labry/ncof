@@ -22,6 +22,7 @@ from fastapi import (  # noqa: F401
     status,
 )
 
+from openapi_server.impl.dependency import get_subscription_service
 from openapi_server.models.extra_models import TokenModel  # noqa: F401
 from typing import Any
 from openapi_server.models.nncof_events_subscription import NncofEventsSubscription
@@ -33,11 +34,6 @@ router = APIRouter()
 ns_pkg = openapi_server.impl
 for _, name, _ in pkgutil.iter_modules(ns_pkg.__path__, ns_pkg.__name__ + "."):
     importlib.import_module(name)
-
-def get_subscription_service(
-) -> BaseNCOFEventsSubscriptionsApi:
-    # return SubscriptionService(db)
-    return BaseNCOFEventsSubscriptionsApi.subclasses[0]()
 
 @router.post(
     "/subscriptions",
@@ -68,8 +64,8 @@ async def create_ncof_events_subscription(
     token_oAuth2ClientCredentials: TokenModel = Security(
         get_token_oAuth2ClientCredentials, scopes=["nncof-eventssubscription"]
     ),
-) -> None:
+):
     if not BaseNCOFEventsSubscriptionsApi.subclasses:
         raise HTTPException(status_code=500, detail="Not implemented")
-    # return await BaseNCOFEventsSubscriptionsApi.subclasses[0]().create_ncof_events_subscription(nncof_events_subscription)
-    return await subscription_service.create_ncof_events_subscription(nncof_events_subscription)
+    subscription_id = await subscription_service.create_ncof_events_subscription(nncof_events_subscription)
+    return Response(subscription_id, status_code=status.HTTP_201_CREATED)

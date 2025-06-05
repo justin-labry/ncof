@@ -5,6 +5,7 @@ import importlib
 import pkgutil
 
 from openapi_server.apis.individual_ncof_events_subscription_api_base import BaseIndividualNCOFEventsSubscriptionApi
+from openapi_server.apis.ncof_events_subscriptions_api_base import BaseNCOFEventsSubscriptionsApi
 import openapi_server.impl
 
 from fastapi import (  # noqa: F401
@@ -22,6 +23,8 @@ from fastapi import (  # noqa: F401
     status,
 )
 
+from openapi_server.impl.dependency import get_subscription_service
+from openapi_server.impl.events_subscriptions_service import SubscriptionNotFoundError
 from openapi_server.models.extra_models import TokenModel  # noqa: F401
 from pydantic import Field, StrictStr
 from typing import Any
@@ -39,7 +42,7 @@ for _, name, _ in pkgutil.iter_modules(ns_pkg.__path__, ns_pkg.__name__ + "."):
 
 
 @router.delete(
-    "/subscriptions/{subscriptionId}",
+    "/subscriptions/{subscription_id}",
     responses={
         204: {"description": "No Content. The Individual NCOF Event Subscription resource matching the subscriptionId was deleted. "},
         307: {"model": RedirectResponse, "description": "Temporary Redirect"},
@@ -57,21 +60,30 @@ for _, name, _ in pkgutil.iter_modules(ns_pkg.__path__, ns_pkg.__name__ + "."):
     },
     tags=["Individual NCOF Events Subscription"],
     summary="Delete an existing Individual NCOF Events Subscription",
+    status_code=status.HTTP_204_NO_CONTENT,
     response_model_by_alias=True,
 )
 async def delete_ncof_events_subscription(
-    subscriptionId: Annotated[StrictStr, Field(description="String identifying a subscription to the Nncof_EventsSubscription Service")] = Path(..., description="String identifying a subscription to the Nncof_EventsSubscription Service"),
+    subscription_id: Annotated[StrictStr, Field(description="String identifying a subscription to the Nncof_EventsSubscription Service")] = Path(..., description="String identifying a subscription to the Nncof_EventsSubscription Service"),
+    subscription_service: BaseIndividualNCOFEventsSubscriptionApi = Depends(
+        get_subscription_service
+    ),
     token_oAuth2ClientCredentials: TokenModel = Security(
         get_token_oAuth2ClientCredentials, scopes=["nncof-eventssubscription"]
     ),
-) -> None:
+):
     if not BaseIndividualNCOFEventsSubscriptionApi.subclasses:
         raise HTTPException(status_code=500, detail="Not implemented")
-    return await BaseIndividualNCOFEventsSubscriptionApi.subclasses[0]().delete_ncof_events_subscription(subscriptionId)
+    try:
+        return await subscription_service.delete_ncof_events_subscription(subscription_id),
+    except SubscriptionNotFoundError:
+        raise HTTPException(status_code=404)
+    except:
+        raise HTTPException(status_code=500, detail="Server error")
 
 
 @router.put(
-    "/subscriptions/{subscriptionId}",
+    "/subscriptions/{subscription_id}",
     responses={
         200: {"model": NncofEventsSubscription, "description": "The Individual NCOF Event Subscription resource was modified successfully and a representation of that resource is returned. "},
         204: {"description": "The Individual NCOF Event Subscription resource was modified successfully."},
@@ -93,15 +105,21 @@ async def delete_ncof_events_subscription(
     },
     tags=["Individual NCOF Events Subscription"],
     summary="Update an existing Individual NCOF Events Subscription",
+    status_code=status.HTTP_200_OK,
     response_model_by_alias=True,
 )
 async def update_ncof_events_subscription(
-    subscriptionId: Annotated[StrictStr, Field(description="String identifying a subscription to the Nncof_EventsSubscription Service.")] = Path(..., description="String identifying a subscription to the Nncof_EventsSubscription Service."),
+    subscription_id: Annotated[ StrictStr, Field(description="String identifying a subscription to the Nncof_EventsSubscription Service.")] = Path(..., description="String identifying a subscription to the Nncof_EventsSubscription Service."),
     nncof_events_subscription: NncofEventsSubscription = Body(None, description=""),
+    subscription_service: BaseIndividualNCOFEventsSubscriptionApi = Depends(
+        get_subscription_service
+    ),
     token_oAuth2ClientCredentials: TokenModel = Security(
         get_token_oAuth2ClientCredentials, scopes=["nncof-eventssubscription"]
     ),
-) -> NncofEventsSubscription:
+):
     if not BaseIndividualNCOFEventsSubscriptionApi.subclasses:
         raise HTTPException(status_code=500, detail="Not implemented")
-    return await BaseIndividualNCOFEventsSubscriptionApi.subclasses[0]().update_ncof_events_subscription(subscriptionId, nncof_events_subscription)
+    # return await BaseIndividualNCOFEventsSubscriptionApi.subclasses[0]().update_ncof_events_subscription(subscriptionId, nncof_events_subscription)
+    return await subscription_service.update_ncof_events_subscription(subscription_id, nncof_events_subscription)
+    # return Response(content=await subscription_service.update_ncof_events_subscription(subscriptionId, nncof_events_subscription), status_code=status.HTTP_200_OK )

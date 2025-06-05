@@ -16,5 +16,5 @@ class BaseNCOFEventsSubscriptionsApi:
     async def create_ncof_events_subscription(
         self,
         nncof_events_subscription: NncofEventsSubscription,
-    ) -> None:
+    ) -> str:
         ...
