@@ -15,8 +15,8 @@
 from fastapi import FastAPI
 
 from openapi_server.apis.individual_ncof_event_subscription_transfer_api import router as IndividualNCOFEventSubscriptionTransferApiRouter
-from openapi_server.apis.individual_ncof_events_subscription_api import router as IndividualNCOFEventsSubscriptionApiRouter
 from openapi_server.apis.ncof_event_subscription_transfers_api import router as NCOFEventSubscriptionTransfersApiRouter
+from openapi_server.apis.individual_ncof_events_subscription_api import router as IndividualNCOFEventsSubscriptionApiRouter
 from openapi_server.apis.ncof_events_subscriptions_api import router as NCOFEventsSubscriptionsApiRouter
 from openapi_server.config.app_config import AppConfig, load_config
 

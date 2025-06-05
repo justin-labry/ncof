@@ -18,6 +18,8 @@ Python >= 3.12
 uv sync
 PYTHONPATH=src uv run uvicorn openapi_server.main:app --host 0.0.0.0 --port 8080 --reload --log-config log_config.ini
 ```
+또는 간단하게 `run.sh`를 실행한다.
+
 확인을 위해서 웹 브라우저로 `http://localhost:8080/docs/` 접속한다.
 
 ## Tests

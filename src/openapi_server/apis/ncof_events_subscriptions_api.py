@@ -38,7 +38,7 @@ for _, name, _ in pkgutil.iter_modules(ns_pkg.__path__, ns_pkg.__name__ + "."):
 @router.post(
     "/subscriptions",
     responses={
-        201: {"description": "Create a new Individual NCOF Event Subscription resource."},
+        201: { "description": "Create a new Individual NCOF Event Subscription resource."},
         400: {"model": ProblemDetails, "description": "Bad request"},
         401: {"model": ProblemDetails, "description": "Unauthorized"},
         403: {"model": ProblemDetails, "description": "Forbidden"},
@@ -54,18 +54,17 @@ for _, name, _ in pkgutil.iter_modules(ns_pkg.__path__, ns_pkg.__name__ + "."):
     },
     tags=["NCOF Events Subscriptions"],
     summary="Create a new Individual NCOF Events Subscription",
+    status_code=status.HTTP_201_CREATED,
     response_model_by_alias=True,
 )
 async def create_ncof_events_subscription(
-    nncof_events_subscription: NncofEventsSubscription = Body(None, description=""),
+    subscription: NncofEventsSubscription = Body(None, description=""),
     subscription_service: BaseNCOFEventsSubscriptionsApi = Depends(
         get_subscription_service
-    ),
-    token_oAuth2ClientCredentials: TokenModel = Security(
-        get_token_oAuth2ClientCredentials, scopes=["nncof-eventssubscription"]
     ),
 ):
     if not BaseNCOFEventsSubscriptionsApi.subclasses:
         raise HTTPException(status_code=500, detail="Not implemented")
-    subscription_id = await subscription_service.create_ncof_events_subscription(nncof_events_subscription)
-    return Response(subscription_id, status_code=status.HTTP_201_CREATED)
+    subscription_id = await subscription_service.create_ncof_events_subscription(subscription)
+
+    return subscription_id

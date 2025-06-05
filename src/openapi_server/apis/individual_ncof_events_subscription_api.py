@@ -68,18 +68,16 @@ async def delete_ncof_events_subscription(
     subscription_service: BaseIndividualNCOFEventsSubscriptionApi = Depends(
         get_subscription_service
     ),
-    token_oAuth2ClientCredentials: TokenModel = Security(
-        get_token_oAuth2ClientCredentials, scopes=["nncof-eventssubscription"]
-    ),
 ):
     if not BaseIndividualNCOFEventsSubscriptionApi.subclasses:
         raise HTTPException(status_code=500, detail="Not implemented")
-    try:
-        return await subscription_service.delete_ncof_events_subscription(subscription_id),
-    except SubscriptionNotFoundError:
-        raise HTTPException(status_code=404)
-    except:
-        raise HTTPException(status_code=500, detail="Server error")
+    return await subscription_service.delete_ncof_events_subscription(subscription_id),
+    # try:
+    # except SubscriptionNotFoundError:
+    #     # raise HTTPException(status_code=404)
+    #     pass
+    # except:
+    #     raise HTTPException(status_code=500, detail="Server error")
 
 
 @router.put(
@@ -110,16 +108,11 @@ async def delete_ncof_events_subscription(
 )
 async def update_ncof_events_subscription(
     subscription_id: Annotated[ StrictStr, Field(description="String identifying a subscription to the Nncof_EventsSubscription Service.")] = Path(..., description="String identifying a subscription to the Nncof_EventsSubscription Service."),
-    nncof_events_subscription: NncofEventsSubscription = Body(None, description=""),
+    subscription: NncofEventsSubscription = Body(None, description=""),
     subscription_service: BaseIndividualNCOFEventsSubscriptionApi = Depends(
         get_subscription_service
-    ),
-    token_oAuth2ClientCredentials: TokenModel = Security(
-        get_token_oAuth2ClientCredentials, scopes=["nncof-eventssubscription"]
     ),
 ):
     if not BaseIndividualNCOFEventsSubscriptionApi.subclasses:
         raise HTTPException(status_code=500, detail="Not implemented")
-    # return await BaseIndividualNCOFEventsSubscriptionApi.subclasses[0]().update_ncof_events_subscription(subscriptionId, nncof_events_subscription)
-    return await subscription_service.update_ncof_events_subscription(subscription_id, nncof_events_subscription)
-    # return Response(content=await subscription_service.update_ncof_events_subscription(subscriptionId, nncof_events_subscription), status_code=status.HTTP_200_OK )
+    return await subscription_service.update_ncof_events_subscription(subscription_id, subscription)

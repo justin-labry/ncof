@@ -14,65 +14,65 @@ def test_create_ncof_events_subscription(client: TestClient):
     Create a new Individual NCOF Events Subscription
     """
     nncof_events_subscription = {
-        "nncof_events_subscription": {
-            "eventSubscriptions": [
+
+        "eventSubscriptions": [
+            {
+                "anySlice": True,
+                "appIds": [
+                    "nfload-mobility-watcher-v1"
+                ],
+                "event": "NF_LOAD",
+                "extraReportReq": {
+                    "startTs": "2025-05-27T07:16:00.000+09:00",
+                    "endTs": "2025-05-30T17:16:00.000+09:00"
+                },
+                "notificationMethod": "PERIODIC",
+                "nfLoadLvlThds": [
                 {
-                    "anySlice": True,
-                    "appIds": [
-                        "nfload-mobility-watcher-v1"
+                    "nfLoadLevel": 70,
+                    "nfCpuUsage": 80,
+                    "nfMemoryUsage": 80,
+                    "nfStorageUsage": 80,
+                    "avgTrafficRate": "20 Gbps",
+                    "maxTrafficRate": "40 Gbps",
+                    "aggTrafficRate": "80.0 Gbps"
+                }
+                ],
+                "nfInstanceIds": [
+                    "3fa85f64-amf-4562-b3fc-2c963f66afa6"
+                ],
+                "nfTypes": [
+                    "AMF", "SMF"
+                ],
+                "evtReq": {
+                    "immRep": False,
+                    "notifMethod": "PERIODIC",
+                    "maxReportNbr": 50,
+                    "mon_dur": "2025-05-30T17:30:00.000+09:00",
+                    "repPeriod": 5,
+                    "sampRatio": 75,
+                    "partitionCriteria": [
+                        "TAC"
                     ],
-                    "event": "NF_LOAD",
-                    "extraReportReq": {
-                        "startTs": "2025-05-27T07:16:00.000+09:00",
-                        "endTs": "2025-05-30T17:16:00.000+09:00"
+                    "grpRepTime": 0,
+                    "notifFlag": "ACTIVATE",
+                    "notifFlagInstruct": {
+                        "bufferedNotifs": "SEND_ALL",
+                        "subscription": "CLOSE"
                     },
-                    "notificationMethod": "PERIODIC",
-                    "nfLoadLvlThds": [
-                    {
-                        "nfLoadLevel": 70,
-                        "nfCpuUsage": 80,
-                        "nfMemoryUsage": 80,
-                        "nfStorageUsage": 80,
-                        "avgTrafficRate": "20 Gbps",
-                        "maxTrafficRate": "40 Gbps",
-                        "aggTrafficRate": "80.0 Gbps"
-                    }
-                    ],
-                    "nfInstanceIds": [
-                        "3fa85f64-amf-4562-b3fc-2c963f66afa6"
-                    ],
-                    "nfTypes": [
-                        "AMF", "SMF"
-                    ],
-                    "evtReq": {
-                        "immRep": False,
-                        "notifMethod": "PERIODIC",
-                        "maxReportNbr": 50,
-                        "mon_dur": "2025-05-30T17:30:00.000+09:00",
-                        "repPeriod": 5,
-                        "sampRatio": 75,
-                        "partitionCriteria": [
-                            "TAC"
-                        ],
-                        "grpRepTime": 0,
-                        "notifFlag": "ACTIVATE",
-                        "notifFlagInstruct": {
-                            "bufferedNotifs": "SEND_ALL",
-                            "subscription": "CLOSE"
-                        },
-                        "mutingSetting": {
-                            "maxNoOfNotif": 0,
-                            "durationBufferedNotif": 0
-                        }
+                    "mutingSetting": {
+                        "maxNoOfNotif": 0,
+                        "durationBufferedNotif": 0
                     }
                 }
-            ],
-            "notification_uri": "http://localhost:8081/callbacks/notifications",
-            "notifCorrId": "string",
-            "supportedFeatures": "040",
-            "prevSub": "string",
-            "consNfInfo": "string"
-        }
+            }
+        ],
+        "notification_uri": "http://localhost:8081/callbacks/notifications",
+        "notifCorrId": "string",
+        "supportedFeatures": "040",
+        "prevSub": "string",
+        "consNfInfo": "string"
+
     }
 
     headers = {

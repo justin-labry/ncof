@@ -23,8 +23,6 @@ class NCOFEventSubscriptionsImpl(BaseNCOFEventsSubscriptionsApi, BaseIndividualN
         self,
         subscription_id: str
     ) -> None:
-        if len(subscription_id) < 3:
-            raise SubscriptionNotFoundError("Subscription not found")
         ...
 
     async def update_ncof_events_subscription(
