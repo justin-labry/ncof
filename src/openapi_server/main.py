@@ -26,6 +26,11 @@ from openapi_server.apis.individual_ncof_events_subscription_api import (
 from openapi_server.apis.ncof_events_subscriptions_api import (
     router as NCOFEventsSubscriptionsApiRouter,
 )
+
+from openapi_server.apis.nwdaf_events_notifications_api import (
+    router as NWDAFEventsNotificationsApiRouter,
+)
+
 from openapi_server.config.app_config import AppConfig, load_config
 
 CONFIG_FILE_PATH = "ncof_server.yaml"
@@ -40,11 +45,13 @@ app = FastAPI(
 )
 
 PREFIX = "/ETRI_INRS_TEAM/NCOF_Nncof_EventSubscription/1.0.0"
+PREFIX_NOTIFICATIONS = "/ETRI_INRS_TEAM/Nsmf_EventExposure/1.0.0"
 
 app.include_router(IndividualNCOFEventSubscriptionTransferApiRouter)
 app.include_router(IndividualNCOFEventsSubscriptionApiRouter, prefix=PREFIX)
 app.include_router(NCOFEventSubscriptionTransfersApiRouter)
 app.include_router(NCOFEventsSubscriptionsApiRouter, prefix=PREFIX)
+app.include_router(NWDAFEventsNotificationsApiRouter, prefix=PREFIX_NOTIFICATIONS)
 
 print(
     r"""

@@ -4,8 +4,12 @@ from typing import Dict, List  # noqa: F401
 import importlib
 import pkgutil
 
-from openapi_server.apis.individual_ncof_events_subscription_api_base import BaseIndividualNCOFEventsSubscriptionApi
-from openapi_server.apis.ncof_events_subscriptions_api_base import BaseNCOFEventsSubscriptionsApi
+from openapi_server.apis.individual_ncof_events_subscription_api_base import (
+    BaseIndividualNCOFEventsSubscriptionApi,
+)
+from openapi_server.apis.ncof_events_subscriptions_api_base import (
+    BaseNCOFEventsSubscriptionsApi,
+)
 import openapi_server.impl
 
 from fastapi import (  # noqa: F401
@@ -24,7 +28,7 @@ from fastapi import (  # noqa: F401
 )
 
 from openapi_server.impl.dependency import get_subscription_service
-from openapi_server.impl.events_subscriptions_service import SubscriptionNotFoundError
+from openapi_server.impl.events_subscriptions_impl import SubscriptionNotFoundError
 from openapi_server.models.extra_models import TokenModel  # noqa: F401
 from pydantic import Field, StrictStr
 from typing import Any
@@ -44,7 +48,9 @@ for _, name, _ in pkgutil.iter_modules(ns_pkg.__path__, ns_pkg.__name__ + "."):
 @router.delete(
     "/subscriptions/{subscription_id}",
     responses={
-        204: {"description": "No Content. The Individual NCOF Event Subscription resource matching the subscriptionId was deleted. "},
+        204: {
+            "description": "No Content. The Individual NCOF Event Subscription resource matching the subscriptionId was deleted. "
+        },
         307: {"model": RedirectResponse, "description": "Temporary Redirect"},
         308: {"model": RedirectResponse, "description": "Permanent Redirect"},
         400: {"model": ProblemDetails, "description": "Bad request"},
@@ -64,14 +70,24 @@ for _, name, _ in pkgutil.iter_modules(ns_pkg.__path__, ns_pkg.__name__ + "."):
     response_model_by_alias=True,
 )
 async def delete_ncof_events_subscription(
-    subscription_id: Annotated[StrictStr, Field(description="String identifying a subscription to the Nncof_EventsSubscription Service")] = Path(..., description="String identifying a subscription to the Nncof_EventsSubscription Service"),
+    subscription_id: Annotated[
+        StrictStr,
+        Field(
+            description="String identifying a subscription to the Nncof_EventsSubscription Service"
+        ),
+    ] = Path(
+        ...,
+        description="String identifying a subscription to the Nncof_EventsSubscription Service",
+    ),
     subscription_service: BaseIndividualNCOFEventsSubscriptionApi = Depends(
         get_subscription_service
     ),
 ):
     if not BaseIndividualNCOFEventsSubscriptionApi.subclasses:
         raise HTTPException(status_code=500, detail="Not implemented")
-    return await subscription_service.delete_ncof_events_subscription(subscription_id),
+    return (
+        await subscription_service.delete_ncof_events_subscription(subscription_id),
+    )
     # try:
     # except SubscriptionNotFoundError:
     #     # raise HTTPException(status_code=404)
@@ -83,8 +99,13 @@ async def delete_ncof_events_subscription(
 @router.put(
     "/subscriptions/{subscription_id}",
     responses={
-        200: {"model": NncofEventsSubscription, "description": "The Individual NCOF Event Subscription resource was modified successfully and a representation of that resource is returned. "},
-        204: {"description": "The Individual NCOF Event Subscription resource was modified successfully."},
+        200: {
+            "model": NncofEventsSubscription,
+            "description": "The Individual NCOF Event Subscription resource was modified successfully and a representation of that resource is returned. ",
+        },
+        204: {
+            "description": "The Individual NCOF Event Subscription resource was modified successfully."
+        },
         307: {"model": RedirectResponse, "description": "Temporary Redirect"},
         308: {"model": RedirectResponse, "description": "Permanent Redirect"},
         400: {"model": ProblemDetails, "description": "Bad request"},
@@ -107,7 +128,15 @@ async def delete_ncof_events_subscription(
     response_model_by_alias=True,
 )
 async def update_ncof_events_subscription(
-    subscription_id: Annotated[ StrictStr, Field(description="String identifying a subscription to the Nncof_EventsSubscription Service.")] = Path(..., description="String identifying a subscription to the Nncof_EventsSubscription Service."),
+    subscription_id: Annotated[
+        StrictStr,
+        Field(
+            description="String identifying a subscription to the Nncof_EventsSubscription Service."
+        ),
+    ] = Path(
+        ...,
+        description="String identifying a subscription to the Nncof_EventsSubscription Service.",
+    ),
     subscription: NncofEventsSubscription = Body(None, description=""),
     subscription_service: BaseIndividualNCOFEventsSubscriptionApi = Depends(
         get_subscription_service
@@ -115,4 +144,6 @@ async def update_ncof_events_subscription(
 ):
     if not BaseIndividualNCOFEventsSubscriptionApi.subclasses:
         raise HTTPException(status_code=500, detail="Not implemented")
-    return await subscription_service.update_ncof_events_subscription(subscription_id, subscription)
+    return await subscription_service.update_ncof_events_subscription(
+        subscription_id, subscription
+    )
