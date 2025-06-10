@@ -14,11 +14,19 @@ Python >= 3.12
 
 서버를 시작하려면 프로젝트 루트 디렉토리에서 다음 명령을 실행한다.
 
-```bash
+```sh
 uv sync
 PYTHONPATH=src uv run uvicorn openapi_server.main:app --host 0.0.0.0 --port 8080 --reload --log-config log_config.ini
 ```
-또는 간단하게 `run.sh`를 실행한다.
+
+### 실행옵션
+
+--log-config 로그 설정 파일
+--port 서비스 포트
+--host 서버 바인딩 호스트 주소 
+--reload 소스코드 변경시 서버 자동 시작작
+
+또는 `run.sh`를 실행한다.
 
 확인을 위해서 웹 브라우저로 `http://localhost:8080/docs/` 접속한다.
 
