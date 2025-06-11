@@ -58,7 +58,7 @@ for _, name, _ in pkgutil.iter_modules(ns_pkg.__path__, ns_pkg.__name__ + "."):
         503: {"model": ProblemDetails, "description": "Service Unavailable"},
         200: {"description": "Generic Error"},
     },
-    tags=["Individual NCOF Event Subscription Transfer"],
+    tags=["NCOF Event Subscription Transfers"],
     summary="Delete an existing Individual NCOF Event Subscription Transfer",
     response_model_by_alias=True,
 )
@@ -105,7 +105,7 @@ async def delete_ncof_event_subscription_transfer(
         503: {"model": ProblemDetails, "description": "Service Unavailable"},
         200: {"description": "Generic Error"},
     },
-    tags=["Individual NCOF Event Subscription Transfer"],
+    tags=["NCOF Event Subscription Transfers"],
     summary="Update an existing Individual NCOF Event Subscription Transfer",
     response_model_by_alias=True,
 )

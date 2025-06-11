@@ -25,14 +25,13 @@ from openapi_server.models.event_reporting_requirement import EventReportingRequ
 from openapi_server.models.nncof_events_subscription import NncofEventsSubscription
 from openapi_server.models.problem_details import ProblemDetails
 
-router = APIRouter()
-
 from ..config.app_config import app_config
+
+router = APIRouter()
 
 
 def get_ncof_notification_uri(subscription_id: str) -> str:
-    # return f"http://{SERVER_IP}:{PORT}/callbacks/notifications/{subscription_id}"
-    return f"http://localhost:8080/{app_config.notification_prefix}/{subscription_id}"
+    return f"http://{app_config.server_ip}:{app_config.port}/{app_config.notification_prefix}/notifications/{subscription_id}"
 
 
 @router.post(
@@ -119,7 +118,11 @@ async def create_ncof_events_subscription(
     # return await subscription_service.create_ncof_events_subscription(subscription)
 
 
-@router.get("/subscriptions")
+@router.get(
+    "/subscriptions",
+    tags=["NCOF Events Subscriptions"],
+    summary="Get all NCOF Events Subscriptions",
+)
 async def subscriptions(
     subscription_manager: SubscriptionManager = Depends(get_subscription_manager),
 ):

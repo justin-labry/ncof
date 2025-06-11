@@ -21,7 +21,7 @@ class SubscriptionManager(SubscriberManagerIfc):
     def add_subscription(
         self, subscription_id: str, subscription: NncofEventsSubscription
     ) -> str:
-
+        """새로운 구독을 추가하고 핸들러를 시작합니다."""
         config = HandlerConfig.from_ncof_events_subscription(subscription)
         # 구독 핸들러 생성
         subscription_handler = SubscriptionHandler(
@@ -38,7 +38,7 @@ class SubscriptionManager(SubscriberManagerIfc):
         return subscription_id
 
     def remove_subscription(self, subscription_id: str) -> bool:
-        """구독 제거"""
+        """구독을 제거하고 관련 핸들러를 중지한다."""
         with self.lock:
 
             if subscription_id in self.subscriptions:
@@ -51,9 +51,11 @@ class SubscriptionManager(SubscriberManagerIfc):
         return False
 
     def get_subscriptions(self):
+        """현재 활성화된 모든 구독 정보를 반환한다."""
         with self.lock:
-            return self.subscriptions
+            return self.subscriptions.copy()
 
     def get_handler(self, subscription_id: str) -> Optional["SubscriptionHandler"]:
-        """구독 ID로 핸들러 찾기"""
-        return self.handlers.get(subscription_id)
+        """주어진 구독 ID로 핸들러를 찾아서 반환한다."""
+        with self.lock:
+            return self.handlers.get(subscription_id)

@@ -10,8 +10,8 @@ class AppConfig:
     server_ip: str = "localhost"
     simulator: bool = False
     report_period: int = 5
-    notification_prefix: str = "/ETRI_INRS_TEAM/Nsmf_EventExposure/1.0.0"
-    subscription_prefix: str = "/ETRI_INRS_TEAM/NCOF_Nncof_EventSubscription/1.0.0"
+    notification_prefix: str = ""
+    subscription_prefix: str = ""
 
 
 def _load_config(file_path: str) -> AppConfig:

@@ -178,7 +178,7 @@ class SubscriptionHandler(threading.Thread):
                 self.loop,
             ).result()
             if 200 <= status_code < 300:
-                logger.info(f"Notification sent successfully: {self.subscription_id}")
+                logger.debug(f"Notification sent successfully: {self.subscription_id}")
             else:
                 logger.warning(
                     f"Notification sending failed: {self.subscription_id},"
@@ -211,8 +211,9 @@ class SubscriptionHandler(threading.Thread):
                     if current_time - last_time >= self.config.report_period:
                         self._aggregate_loads(nf_load_infos)
                         self._process_notifications(nf_load_infos)
+                        logger.info(f"[{self.subscription_id}] Notify ---> NF")
                         self.report_count += 1
-                        nf_load_infos.clear()
+                        # nf_load_infos.clear()
                         last_time = time.time()
                     elapsed_time = time.time() - last_time
                     sleep_time = max(0, self.config.report_period - elapsed_time)
