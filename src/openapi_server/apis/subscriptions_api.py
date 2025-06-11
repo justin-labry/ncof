@@ -64,12 +64,6 @@ async def create_ncof_events_subscription(
     subscription: NncofEventsSubscription = Body(None, description=""),
     subscription_manager: SubscriptionManager = Depends(get_subscription_manager),
 ):
-    if len(subscription.event_subscriptions) == 0:
-        raise HTTPException(
-            status_code=400,
-            detail="No event subscriptions provided in the request",
-        )
-
     event_subscription = subscription.event_subscriptions[0]
 
     extra_report_req: Optional[EventReportingRequirement] = getattr(
