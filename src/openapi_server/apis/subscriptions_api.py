@@ -26,7 +26,7 @@ from openapi_server.models.event_reporting_requirement import EventReportingRequ
 from openapi_server.models.nncof_events_subscription import NncofEventsSubscription
 from openapi_server.models.problem_details import ProblemDetails
 
-from ..config.app_config import app_config
+from config.app_config import app_config
 
 router = APIRouter()
 
@@ -109,13 +109,11 @@ async def create_ncof_events_subscription(
             ]
             # 모든 태스크를 병렬로 실행하고 결과를 기다림
             results = await asyncio.gather(*tasks, return_exceptions=True)
-            # 결과 확인
             for result in results:
-                # if not result:
                 if isinstance(result, Exception):
                     raise Exception("fail to subscribe")
             return True
-
+        # 모든 NF로 subscription 이 성공해야 구독완료
         try:
             await execute_background_tasks()
             subscription_manager.add_subscription(

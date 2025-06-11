@@ -8,7 +8,17 @@ from openapi_server.apis import (
     notifications_api,
 )
 
-from .config.app_config import app_config
+from config.app_config import app_config
+
+print(
+    r"""
+ _   _  ____ ___  _____
+| \ | |/ ___/ _ \|  ___|
+|  \| | |  | | | | |_
+| |\  | |__| |_| |  _|
+|_| \_|\____\___/|_|
+"""
+)
 
 app = FastAPI(
     title="NCOF Events Subscription",
@@ -24,13 +34,3 @@ app.include_router(subscription_transfers_api)
 app.include_router(subscription_api, prefix=SUBSCRIPTION_PREFIX)
 app.include_router(subscriptions_api, prefix=SUBSCRIPTION_PREFIX)
 app.include_router(notifications_api, prefix=NOTIFICATION_PREFIX)
-
-print(
-    r"""
- _   _  ____ ___  _____
-| \ | |/ ___/ _ \|  ___|
-|  \| | |  | | | | |_
-| |\  | |__| |_| |  _|
-|_| \_|\____\___/|_|
-"""
-)

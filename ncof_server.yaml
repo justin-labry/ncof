@@ -1,6 +1,6 @@
 ncof_server:
   simulator: true # 시뮬레이터 모드 여부
   report_period: 3
-  server_ip: "192.168.1.234"
+  server_ip: "127.0.0.1"
   notification_prefix: "ETRI_INRS_TEAM/Nsmf_EventExposure/1.0.0"
   subscription_prefix: "ETRI_INRS_TEAM/NCOF_Nncof_EventSubscription/1.0.0"
