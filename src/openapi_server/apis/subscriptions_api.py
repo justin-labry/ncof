@@ -1,5 +1,6 @@
 # coding: utf-8
 
+import asyncio
 from typing import Optional  # noqa: F401
 import uuid
 
@@ -86,31 +87,58 @@ async def create_ncof_events_subscription(
             )
 
     try:
-        # success = dispatcher.subscribe(subscription_id, ncof_events_subscription)
+        # 구독 ID를 생성한다.
+        subscription_id = str(uuid.uuid4())
 
         new_nf_events_subscription = subscription.model_copy()
 
-        # 구독 ID를 생성한다.
-        # subscription_id = "subscription-0001"
-        subscription_id = str(uuid.uuid4())
         # update the notification URI in the subscription
         new_nf_events_subscription.notification_uri = get_ncof_notification_uri(
             subscription_id
         )
 
-        subscription_manager.add_subscription(
-            subscription_id=subscription_id,
-            subscription=subscription,
-        )
+        # 비동기 작업을 위한 태스크 리스트 생성
+        async def execute_background_tasks():
+            tasks = [
+                subscribe_to_nf(
+                    subscription_id=subscription_id,
+                    uri=nf.get("uri") or "",
+                    payload=new_nf_events_subscription.model_dump(),
+                )
+                for nf in nfs
+            ]
+            # 모든 태스크를 병렬로 실행하고 결과를 기다림
+            results = await asyncio.gather(*tasks, return_exceptions=True)
+            # 결과 확인
+            for result in results:
+                # if not result:
+                if isinstance(result, Exception):
+                    raise Exception("fail to subscribe")
+            return True
 
-        for nf in nfs:
-            background_tasks.add_task(
-                subscribe_to_nf,
+        try:
+            await execute_background_tasks()
+            subscription_manager.add_subscription(
                 subscription_id=subscription_id,
-                uri=nf.get("uri") or "",
-                payload=new_nf_events_subscription.model_dump(),
+                subscription=subscription,
+            )
+        except Exception as e:
+            raise HTTPException(
+                status_code=500, detail=f"Error in background tasks: {str(e)}"
             )
 
+        # subscription_manager.add_subscription(
+        #     subscription_id=subscription_id,
+        #     subscription=subscription,
+        # )
+
+        # for nf in nfs:
+        #     background_tasks.add_task(
+        #         subscribe_to_nf,
+        #         subscription_id=subscription_id,
+        #         uri=nf.get("uri") or "",
+        #         payload=new_nf_events_subscription.model_dump(),
+        #     )
         return subscription_id
 
     except Exception as e:

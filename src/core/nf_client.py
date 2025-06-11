@@ -77,7 +77,7 @@ async def subscribe_to_nf(
     subscription_id: str, uri: str, payload
 ) -> Optional[Dict[str, Any]]:
     """
-    NF에 구독 요청을 보내는 비동기 함수입니다.
+    NF에 구독 요청을 보내는 비동기 함수이다.
 
     Args:
         subscription_id: 구독 ID
@@ -87,11 +87,6 @@ async def subscribe_to_nf(
     Returns:
         성공 시 API 응답 본문 (딕셔너리), 실패 시 None
     """
-    # if not isinstance(payload, SubscriptionPayload):
-    #     logging.error(
-    #         f"Invalid payload type for subscription {subscription_id}: {type(payload)}"
-    #     )
-    #     raise ValueError("Payload must be a SubscriptionPayload object")
 
     response = await _make_post_request(
         uri=uri,
@@ -99,11 +94,16 @@ async def subscribe_to_nf(
         request_id=subscription_id,
         log_context="subscription",
     )
-    return (
-        response.body
-        if response.status_code >= 200 and response.status_code < 300
-        else None
-    )
+
+    if response.status_code >= 200 and response.status_code < 300:
+        return response.body
+
+    raise Exception(response.error)
+    # return (
+    #     response.body
+    #     if response.status_code >= 200 and response.status_code < 300
+    #     else None
+    # )
 
 
 async def send_notification(
