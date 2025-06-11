@@ -1,48 +1,29 @@
 # coding: utf-8
-
-from typing import Dict, List  # noqa: F401
-import importlib
-import pkgutil
-
-from openapi_server.apis.individual_ncof_events_subscription_api_base import (
-    BaseIndividualNCOFEventsSubscriptionApi,
-)
-from openapi_server.apis.ncof_events_subscriptions_api_base import (
-    BaseNCOFEventsSubscriptionsApi,
-)
-import openapi_server.impl
-
 from fastapi import (  # noqa: F401
     APIRouter,
     Body,
-    Cookie,
     Depends,
-    Form,
-    Header,
     HTTPException,
     Path,
-    Query,
-    Response,
-    Security,
     status,
 )
 
-from openapi_server.impl.dependency import get_subscription_service
-from openapi_server.impl.events_subscriptions_impl import SubscriptionNotFoundError
-from openapi_server.models.extra_models import TokenModel  # noqa: F401
-from pydantic import Field, StrictStr
-from typing import Any
 from typing_extensions import Annotated
+
+from pydantic import Field, StrictStr
+
+from core.dependency import get_subscription_manager
+from core.subscription_manager import SubscriptionManager
+
 from openapi_server.models.nncof_events_subscription import NncofEventsSubscription
 from openapi_server.models.problem_details import ProblemDetails
 from openapi_server.models.redirect_response import RedirectResponse
-from openapi_server.security_api import get_token_oAuth2ClientCredentials
+
+import logging
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
-
-ns_pkg = openapi_server.impl
-for _, name, _ in pkgutil.iter_modules(ns_pkg.__path__, ns_pkg.__name__ + "."):
-    importlib.import_module(name)
 
 
 @router.delete(
@@ -79,21 +60,14 @@ async def delete_ncof_events_subscription(
         ...,
         description="String identifying a subscription to the Nncof_EventsSubscription Service",
     ),
-    subscription_service: BaseIndividualNCOFEventsSubscriptionApi = Depends(
-        get_subscription_service
-    ),
+    subscription_manager: SubscriptionManager = Depends(get_subscription_manager),
 ):
-    if not BaseIndividualNCOFEventsSubscriptionApi.subclasses:
-        raise HTTPException(status_code=500, detail="Not implemented")
-    return (
-        await subscription_service.delete_ncof_events_subscription(subscription_id),
-    )
-    # try:
-    # except SubscriptionNotFoundError:
-    #     # raise HTTPException(status_code=404)
-    #     pass
-    # except:
-    #     raise HTTPException(status_code=500, detail="Server error")
+
+    try:
+        if subscription_manager.remove_subscription(subscription_id):
+            return None
+    except:
+        raise HTTPException(500, "Internal server error")
 
 
 @router.put(
@@ -138,12 +112,5 @@ async def update_ncof_events_subscription(
         description="String identifying a subscription to the Nncof_EventsSubscription Service.",
     ),
     subscription: NncofEventsSubscription = Body(None, description=""),
-    subscription_service: BaseIndividualNCOFEventsSubscriptionApi = Depends(
-        get_subscription_service
-    ),
 ):
-    if not BaseIndividualNCOFEventsSubscriptionApi.subclasses:
-        raise HTTPException(status_code=500, detail="Not implemented")
-    return await subscription_service.update_ncof_events_subscription(
-        subscription_id, subscription
-    )
+    raise HTTPException(status_code=500, detail="Not implemented")

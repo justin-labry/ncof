@@ -1,42 +1,28 @@
 # coding: utf-8
 
-from typing import Dict, List  # noqa: F401
-import importlib
-import pkgutil
+import logging
+
 from typing_extensions import Annotated
 
 from pydantic import Field, StrictStr
 
-from openapi_server.apis.nwdaf_events_notifications_api_base import (
-    BaseNWDAFEventsNotificationsApi,
-)
-import openapi_server.impl
-
 from fastapi import (  # noqa: F401
     APIRouter,
     Body,
-    Cookie,
     Depends,
-    Form,
-    Header,
     HTTPException,
     Path,
-    Query,
-    Response,
-    Security,
     status,
 )
 
-from openapi_server.models.extra_models import TokenModel  # noqa: F401
-from typing import Any
+from core.subscription_manager import SubscriptionManager
+from core.dependency import get_subscription_manager
+
 from openapi_server.models.event_notification import EventNotification
-from openapi_server.impl.dependency import get_notification_service
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
-
-ns_pkg = openapi_server.impl
-for _, name, _ in pkgutil.iter_modules(ns_pkg.__path__, ns_pkg.__name__ + "."):
-    importlib.import_module(name)
 
 
 @router.post(
@@ -46,23 +32,32 @@ for _, name, _ in pkgutil.iter_modules(ns_pkg.__path__, ns_pkg.__name__ + "."):
         400: {"description": "invalid input, object invalid"},
         409: {"description": "an existing item already exists"},
     },
-    tags=["NWDAF Events Notifications"],
+    tags=["NCOF Events Notifications"],
     summary="Create a new Individual NCOF Events Notification",
+    status_code=status.HTTP_201_CREATED,
     response_model_by_alias=True,
 )
 async def create_nwdaf_events_notification(
-    subscription_id: Annotated[
-        StrictStr,
-        Field(),
-    ] = Path(),
-    notification_service: BaseNWDAFEventsNotificationsApi = Depends(
-        get_notification_service
+    subscription_id: Annotated[StrictStr, Field()] = Path(),
+    subscription_manager: SubscriptionManager = Depends(get_subscription_manager),
+    event_notification: EventNotification = Body(
+        None, description="Event notification containing NF load level information"
     ),
-    event_notification: EventNotification = Body(None, description=""),
-) -> None:
-    if not BaseNWDAFEventsNotificationsApi.subclasses:
-        raise HTTPException(status_code=500, detail="Not implemented")
+):
+    """외부 서버로부터 알림 수신"""
 
-    return await notification_service.create_nwdaf_events_notification(
-        subscription_id, event_notification
-    )
+    if not event_notification.nf_load_level_infos:
+        raise HTTPException(
+            status_code=400,
+            detail="No load level information provided in the notification",
+        )
+
+    handler = subscription_manager.get_handler(subscription_id)
+
+    if not handler:
+        raise HTTPException(status_code=404, detail="구독 ID를 찾을 수 없음")
+
+    for load in event_notification.nf_load_level_infos:
+        handler.add_notification(load)
+
+    return None

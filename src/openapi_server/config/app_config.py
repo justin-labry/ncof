@@ -10,9 +10,11 @@ class AppConfig:
     server_ip: str = "localhost"
     simulator: bool = False
     report_period: int = 5
+    notification_prefix: str = "/ETRI_INRS_TEAM/Nsmf_EventExposure/1.0.0"
+    subscription_prefix: str = "/ETRI_INRS_TEAM/NCOF_Nncof_EventSubscription/1.0.0"
 
 
-def load_config(file_path: str) -> AppConfig:
+def _load_config(file_path: str) -> AppConfig:
     """
     YAML 설정 파일을 로드하여 AppConfig 객체로 반환합니다.
     설정 파일이 없거나 파싱에 실패하면 기본 설정을 반환합니다.
@@ -44,6 +46,12 @@ def load_config(file_path: str) -> AppConfig:
             report_period=ncof_config.get(
                 "report_period", default_config.report_period
             ),
+            notification_prefix=ncof_config.get(
+                "notification_prefix", default_config.notification_prefix
+            ),
+            subscription_prefix=ncof_config.get(
+                "subscription_prefix", default_config.subscription_prefix
+            ),
         )
     except FileNotFoundError:
         logging.error(
@@ -53,3 +61,9 @@ def load_config(file_path: str) -> AppConfig:
     except yaml.YAMLError as exc:
         logging.error(f"YAML 파일 파싱 중 오류 발생: {exc}. 기본 설정을 사용합니다.")
         return default_config
+
+
+CONFIG_FILE_PATH = "ncof_server.yaml"
+
+# 설정 로드
+app_config: AppConfig = _load_config(CONFIG_FILE_PATH)

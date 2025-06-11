@@ -1,8 +1,7 @@
 # coding: utf-8
 
-from typing import ClassVar, Dict, List, Tuple  # noqa: F401
+from typing import ClassVar, Tuple  # noqa: F401
 
-from typing import Any
 from openapi_server.models.event_notification import EventNotification
 
 

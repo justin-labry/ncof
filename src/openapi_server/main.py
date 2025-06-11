@@ -15,28 +15,23 @@ Do not edit the class manually.
 from fastapi import FastAPI
 
 from openapi_server.apis.individual_ncof_event_subscription_transfer_api import (
-    router as IndividualNCOFEventSubscriptionTransferApiRouter,
+    router as eventSubscriptionTransferApiRouter,
 )
 from openapi_server.apis.ncof_event_subscription_transfers_api import (
-    router as NCOFEventSubscriptionTransfersApiRouter,
+    router as eventSubscriptionTransfersApiRouter,
 )
 from openapi_server.apis.individual_ncof_events_subscription_api import (
-    router as IndividualNCOFEventsSubscriptionApiRouter,
+    router as eventsSubscriptionApiRouter,
 )
 from openapi_server.apis.ncof_events_subscriptions_api import (
-    router as NCOFEventsSubscriptionsApiRouter,
+    router as eventsSubscriptionsApiRouter,
 )
 
 from openapi_server.apis.nwdaf_events_notifications_api import (
-    router as NWDAFEventsNotificationsApiRouter,
+    router as eventsNotificationsApiRouter,
 )
 
-from openapi_server.config.app_config import AppConfig, load_config
-
-CONFIG_FILE_PATH = "ncof_server.yaml"
-
-# 설정 로드
-app_config: AppConfig = load_config(CONFIG_FILE_PATH)
+from .config.app_config import app_config
 
 app = FastAPI(
     title="Nncof_EventsSubscription",
@@ -44,14 +39,14 @@ app = FastAPI(
     version="1.0.0",
 )
 
-PREFIX = "/ETRI_INRS_TEAM/NCOF_Nncof_EventSubscription/1.0.0"
-PREFIX_NOTIFICATIONS = "/ETRI_INRS_TEAM/Nsmf_EventExposure/1.0.0"
+NOTIFICATION_PREFIX = app_config.notification_prefix
+SUBSCRIPTION_PREFIX = app_config.subscription_prefix
 
-app.include_router(IndividualNCOFEventSubscriptionTransferApiRouter)
-app.include_router(IndividualNCOFEventsSubscriptionApiRouter, prefix=PREFIX)
-app.include_router(NCOFEventSubscriptionTransfersApiRouter)
-app.include_router(NCOFEventsSubscriptionsApiRouter, prefix=PREFIX)
-app.include_router(NWDAFEventsNotificationsApiRouter, prefix=PREFIX_NOTIFICATIONS)
+app.include_router(eventSubscriptionTransferApiRouter)
+app.include_router(eventSubscriptionTransfersApiRouter)
+app.include_router(eventsSubscriptionApiRouter, prefix=SUBSCRIPTION_PREFIX)
+app.include_router(eventsSubscriptionsApiRouter, prefix=SUBSCRIPTION_PREFIX)
+app.include_router(eventsNotificationsApiRouter, prefix=NOTIFICATION_PREFIX)
 
 print(
     r"""

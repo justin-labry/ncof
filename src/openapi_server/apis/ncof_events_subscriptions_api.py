@@ -1,41 +1,35 @@
 # coding: utf-8
 
-from typing import Dict, List  # noqa: F401
-import importlib
-import pkgutil
+from typing import Optional  # noqa: F401
+import uuid
 
-from openapi_server.apis.ncof_events_subscriptions_api_base import (
-    BaseNCOFEventsSubscriptionsApi,
-)
-import openapi_server.impl
 
 from fastapi import (  # noqa: F401
     APIRouter,
+    BackgroundTasks,
     Body,
-    Cookie,
     Depends,
-    Form,
-    Header,
     HTTPException,
-    Path,
-    Query,
-    Response,
-    Security,
     status,
 )
 
-from openapi_server.impl.dependency import get_subscription_service
-from openapi_server.models.extra_models import TokenModel  # noqa: F401
-from typing import Any
+from core.nf_client import subscribe_to_nf
+from core.nrf_client import get_nf_info
+from core.subscription_manager import SubscriptionManager
+from core.dependency import get_subscription_manager
+
+from openapi_server.models.event_reporting_requirement import EventReportingRequirement
 from openapi_server.models.nncof_events_subscription import NncofEventsSubscription
 from openapi_server.models.problem_details import ProblemDetails
-from openapi_server.security_api import get_token_oAuth2ClientCredentials
 
 router = APIRouter()
 
-ns_pkg = openapi_server.impl
-for _, name, _ in pkgutil.iter_modules(ns_pkg.__path__, ns_pkg.__name__ + "."):
-    importlib.import_module(name)
+from ..config.app_config import app_config
+
+
+def get_ncof_notification_uri(prefix: str, subscription_id: str) -> str:
+    # return f"http://{SERVER_IP}:{PORT}/callbacks/notifications/{subscription_id}"
+    return f"http://localhost:8080/{app_config.notification_prefix}/{subscription_id}"
 
 
 @router.post(
@@ -63,12 +57,73 @@ for _, name, _ in pkgutil.iter_modules(ns_pkg.__path__, ns_pkg.__name__ + "."):
     response_model_by_alias=True,
 )
 async def create_ncof_events_subscription(
+    background_tasks: BackgroundTasks,
     subscription: NncofEventsSubscription = Body(None, description=""),
-    subscription_service: BaseNCOFEventsSubscriptionsApi = Depends(
-        get_subscription_service
-    ),
+    subscription_manager: SubscriptionManager = Depends(get_subscription_manager),
 ):
-    if not BaseNCOFEventsSubscriptionsApi.subclasses:
-        raise HTTPException(status_code=500, detail="Not implemented")
+    if len(subscription.event_subscriptions) == 0:
+        raise HTTPException(
+            status_code=400,
+            detail="No event subscriptions provided in the request",
+        )
 
-    return await subscription_service.create_ncof_events_subscription(subscription)
+    event_subscription = subscription.event_subscriptions[0]
+
+    extra_report_req: Optional[EventReportingRequirement] = getattr(
+        event_subscription, "extra_report_req", None
+    )
+
+    if not event_subscription.nf_types:
+        raise HTTPException(
+            status_code=400,
+            detail="No NF types specified in the subscription request",
+        )
+
+    nfs = []
+    for nf_type in event_subscription.nf_types:
+        nf_info = get_nf_info(nf_type)
+        nfs.append(nf_info)
+        if not nf_info:
+            raise HTTPException(
+                status_code=404,
+                detail=f"NF type {nf_type} not found in NRF",
+            )
+
+    try:
+        # success = dispatcher.subscribe(subscription_id, ncof_events_subscription)
+
+        new_nf_events_subscription = subscription.model_copy()
+
+        # 구독 ID를 생성한다.
+        # subscription_id = "subscription-0001"
+        subscription_id = str(uuid.uuid4())
+        # update the notification URI in the subscription
+        new_nf_events_subscription.notification_uri = get_ncof_notification_uri(
+            "ETRI_INRS_TEAM/Nsmf_EventExposure/1.0.0/notifications", subscription_id
+        )
+
+        subscription_manager.add_subscription(
+            subscription_id=subscription_id,
+            subscription=subscription,
+        )
+
+        for nf in nfs:
+            background_tasks.add_task(
+                subscribe_to_nf,
+                subscription_id=subscription_id,
+                uri=nf.get("uri") or "",
+                payload=new_nf_events_subscription.model_dump(),
+            )
+
+        return subscription_id
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error subscribing: {str(e)}")
+    # return await subscription_service.create_ncof_events_subscription(subscription)
+
+
+@router.get("/subscriptions")
+async def subscriptions(
+    subscription_manager: SubscriptionManager = Depends(get_subscription_manager),
+):
+    return subscription_manager.get_subscriptions()
