@@ -4,7 +4,9 @@ from typing import Dict, List  # noqa: F401
 import importlib
 import pkgutil
 
-from openapi_server.apis.ncof_event_subscription_transfers_api_base import BaseNCOFEventSubscriptionTransfersApi
+from openapi_server.apis.subscription_transfers_api_base import (
+    BaseNCOFEventSubscriptionTransfersApi,
+)
 import openapi_server.impl
 
 from fastapi import (  # noqa: F401
@@ -38,8 +40,12 @@ for _, name, _ in pkgutil.iter_modules(ns_pkg.__path__, ns_pkg.__name__ + "."):
 @router.post(
     "/transfers",
     responses={
-        201: {"description": "Create a new Individual NCOF Event Subscription Transfer resource."},
-        204: {"description": "No Content. The receipt of the information about analytics subscription(s) that are requested to be transferred and the ability to handle this information (e.g. execute the steps required to transfer an analytics subscription directly) is confirmed. "},
+        201: {
+            "description": "Create a new Individual NCOF Event Subscription Transfer resource."
+        },
+        204: {
+            "description": "No Content. The receipt of the information about analytics subscription(s) that are requested to be transferred and the ability to handle this information (e.g. execute the steps required to transfer an analytics subscription directly) is confirmed. "
+        },
         400: {"model": ProblemDetails, "description": "Bad request"},
         401: {"model": ProblemDetails, "description": "Unauthorized"},
         403: {"model": ProblemDetails, "description": "Forbidden"},
@@ -65,4 +71,6 @@ async def create_ncof_event_subscription_transfer(
 ) -> None:
     if not BaseNCOFEventSubscriptionTransfersApi.subclasses:
         raise HTTPException(status_code=500, detail="Not implemented")
-    return await BaseNCOFEventSubscriptionTransfersApi.subclasses[0]().create_ncof_event_subscription_transfer(body)
+    return await BaseNCOFEventSubscriptionTransfersApi.subclasses[
+        0
+    ]().create_ncof_event_subscription_transfer(body)

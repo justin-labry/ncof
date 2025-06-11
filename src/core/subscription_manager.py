@@ -2,10 +2,10 @@ from typing import Optional
 import threading
 import logging
 
-from core.ifc import SubscriberManagerIfc
-from core.subscription_handler import HandlerConfig, SubscriptionHandler
-
 from openapi_server.models.nncof_events_subscription import NncofEventsSubscription
+
+from .ifc import SubscriberManagerIfc
+from .subscription_handler import HandlerConfig, SubscriptionHandler
 
 logger = logging.getLogger(__name__)
 
@@ -24,16 +24,16 @@ class SubscriptionManager(SubscriberManagerIfc):
 
         config = HandlerConfig.from_ncof_events_subscription(subscription)
         # 구독 핸들러 생성
-        handler = SubscriptionHandler(
+        subscription_handler = SubscriptionHandler(
             subscription_id=subscription_id,
             handler_manager=self,
             config=config,
         )
 
         self.subscriptions[subscription_id] = subscription
-        self.handlers[subscription_id] = handler
+        self.handlers[subscription_id] = subscription_handler
 
-        handler.start()
+        subscription_handler.start()
 
         return subscription_id
 

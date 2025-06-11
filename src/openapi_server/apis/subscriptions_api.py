@@ -15,8 +15,11 @@ from fastapi import (  # noqa: F401
 
 from core.nf_client import subscribe_to_nf
 from core.nrf_client import get_nf_info
-from core.subscription_manager import SubscriptionManager
-from core.dependency import get_subscription_manager
+
+# from core.subscription_manager import SubscriptionManager
+# from core.dependency import get_subscription_manager
+
+from core import SubscriptionManager, get_subscription_manager
 
 from openapi_server.models.event_reporting_requirement import EventReportingRequirement
 from openapi_server.models.nncof_events_subscription import NncofEventsSubscription
@@ -27,7 +30,7 @@ router = APIRouter()
 from ..config.app_config import app_config
 
 
-def get_ncof_notification_uri(prefix: str, subscription_id: str) -> str:
+def get_ncof_notification_uri(subscription_id: str) -> str:
     # return f"http://{SERVER_IP}:{PORT}/callbacks/notifications/{subscription_id}"
     return f"http://localhost:8080/{app_config.notification_prefix}/{subscription_id}"
 
@@ -99,7 +102,7 @@ async def create_ncof_events_subscription(
         subscription_id = str(uuid.uuid4())
         # update the notification URI in the subscription
         new_nf_events_subscription.notification_uri = get_ncof_notification_uri(
-            "ETRI_INRS_TEAM/Nsmf_EventExposure/1.0.0/notifications", subscription_id
+            subscription_id
         )
 
         subscription_manager.add_subscription(

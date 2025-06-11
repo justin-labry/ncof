@@ -4,7 +4,9 @@ from typing import Dict, List  # noqa: F401
 import importlib
 import pkgutil
 
-from openapi_server.apis.individual_ncof_event_subscription_transfer_api_base import BaseIndividualNCOFEventSubscriptionTransferApi
+from openapi_server.apis.subscription_transfer_api_base import (
+    BaseIndividualNCOFEventSubscriptionTransferApi,
+)
 import openapi_server.impl
 
 from fastapi import (  # noqa: F401
@@ -40,7 +42,9 @@ for _, name, _ in pkgutil.iter_modules(ns_pkg.__path__, ns_pkg.__name__ + "."):
 @router.delete(
     "/transfers/{transferId}",
     responses={
-        204: {"description": "No Content. The Individual NCOF Event Subscription Transfer resource matching the transferId was deleted. "},
+        204: {
+            "description": "No Content. The Individual NCOF Event Subscription Transfer resource matching the transferId was deleted. "
+        },
         307: {"model": RedirectResponse, "description": "Temporary Redirect"},
         308: {"model": RedirectResponse, "description": "Permanent Redirect"},
         400: {"model": ProblemDetails, "description": "Bad request"},
@@ -59,20 +63,32 @@ for _, name, _ in pkgutil.iter_modules(ns_pkg.__path__, ns_pkg.__name__ + "."):
     response_model_by_alias=True,
 )
 async def delete_ncof_event_subscription_transfer(
-    transferId: Annotated[StrictStr, Field(description="String identifying a request for an analytics subscription transfer to the Nncof_EventsSubscription Service. ")] = Path(..., description="String identifying a request for an analytics subscription transfer to the Nncof_EventsSubscription Service. "),
+    transferId: Annotated[
+        StrictStr,
+        Field(
+            description="String identifying a request for an analytics subscription transfer to the Nncof_EventsSubscription Service. "
+        ),
+    ] = Path(
+        ...,
+        description="String identifying a request for an analytics subscription transfer to the Nncof_EventsSubscription Service. ",
+    ),
     token_oAuth2ClientCredentials: TokenModel = Security(
         get_token_oAuth2ClientCredentials, scopes=["nncof-eventssubscription"]
     ),
 ) -> None:
     if not BaseIndividualNCOFEventSubscriptionTransferApi.subclasses:
         raise HTTPException(status_code=500, detail="Not implemented")
-    return await BaseIndividualNCOFEventSubscriptionTransferApi.subclasses[0]().delete_ncof_event_subscription_transfer(transferId)
+    return await BaseIndividualNCOFEventSubscriptionTransferApi.subclasses[
+        0
+    ]().delete_ncof_event_subscription_transfer(transferId)
 
 
 @router.put(
     "/transfers/{transferId}",
     responses={
-        204: {"description": "The Individual NCOF Event Subscription Transfer resource was modified successfully. "},
+        204: {
+            "description": "The Individual NCOF Event Subscription Transfer resource was modified successfully. "
+        },
         307: {"model": RedirectResponse, "description": "Temporary Redirect"},
         308: {"model": RedirectResponse, "description": "Permanent Redirect"},
         400: {"model": ProblemDetails, "description": "Bad request"},
@@ -94,7 +110,15 @@ async def delete_ncof_event_subscription_transfer(
     response_model_by_alias=True,
 )
 async def update_ncof_event_subscription_transfer(
-    transferId: Annotated[StrictStr, Field(description="String identifying a request for an analytics subscription transfer to the Nncof_EventsSubscription Service ")] = Path(..., description="String identifying a request for an analytics subscription transfer to the Nncof_EventsSubscription Service "),
+    transferId: Annotated[
+        StrictStr,
+        Field(
+            description="String identifying a request for an analytics subscription transfer to the Nncof_EventsSubscription Service "
+        ),
+    ] = Path(
+        ...,
+        description="String identifying a request for an analytics subscription transfer to the Nncof_EventsSubscription Service ",
+    ),
     body: StrictStr = Body(None, description=""),
     token_oAuth2ClientCredentials: TokenModel = Security(
         get_token_oAuth2ClientCredentials, scopes=["nncof-eventssubscription"]
@@ -102,4 +126,6 @@ async def update_ncof_event_subscription_transfer(
 ) -> None:
     if not BaseIndividualNCOFEventSubscriptionTransferApi.subclasses:
         raise HTTPException(status_code=500, detail="Not implemented")
-    return await BaseIndividualNCOFEventSubscriptionTransferApi.subclasses[0]().update_ncof_event_subscription_transfer(transferId, body)
+    return await BaseIndividualNCOFEventSubscriptionTransferApi.subclasses[
+        0
+    ]().update_ncof_event_subscription_transfer(transferId, body)

@@ -6,15 +6,14 @@ import logging
 
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
-
 from typing import Dict, Optional
-
-from core.load_aggregator import aggregate
-from core.nf_client import send_notification
-from core.ifc import SubscriberManagerIfc
 
 from openapi_server.models.event_notification import EventNotification
 from openapi_server.models.nf_load_level_information import NfLoadLevelInformation
+
+from .load_aggregator import aggregate
+from .nf_client import send_notification
+from .ifc import SubscriberManagerIfc
 
 logger = logging.getLogger(__name__)
 TIMEZONE: timezone = timezone(timedelta(hours=9))
