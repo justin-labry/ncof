@@ -1,6 +1,6 @@
 import logging
 
-from fastapi import BackgroundTasks, Body, FastAPI
+from fastapi import BackgroundTasks, Body, FastAPI, HTTPException, status
 
 from .utils import notify_multiple_times
 from openapi_server.models.event_notification import EventNotification
@@ -14,6 +14,11 @@ async def subscribe(
     background_tasks: BackgroundTasks,  # BackgroundTasks 주입
     subscription: NncofEventsSubscription = Body(None, description=""),
 ):
+    if not subscription or not subscription.notification_uri:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Request body is missing or notification_uri is not provided.",
+        )
     logging.info(f"[Subscription] <--- {subscription.notification_uri}")
 
     noti = EventNotification()
