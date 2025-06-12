@@ -3,6 +3,9 @@ import logging
 
 import httpx
 
+from openapi_server.models.event_notification import EventNotification
+from openapi_server.models.nf_load_level_information import NfLoadLevelInformation
+
 
 async def send_notification(uri: str, notification_payload: dict):
     try:
@@ -23,3 +26,32 @@ async def notify_multiple_times(
     for _ in range(times):
         await asyncio.sleep(delay)
         await send_notification(uri, payload)
+
+def create_notification_payload(nf_instance_id: str, nf_type: str) -> dict:
+    """테스트용 알림 페이로드 생성"""
+    load_level_info = NfLoadLevelInformation.from_dict(
+        {
+            "nfInstanceId": nf_instance_id,
+            "snssai": {"sst": 1, "sd": "010203"},
+            "nfStatus": {
+                "statusRegistered": 98,
+                "statusUndiscoverable": 1,
+                "statusUnregistered": 1,
+            },
+            "nfType": nf_type,
+            "nfSetId": nf_instance_id,
+            "nfLoadLevelpeak": 2,
+            "nfStorageUsage": 9,
+            "nfCpuUsage": 2,
+            "nfMemoryUsage": 123,
+            "confidence": 95,
+            "nfLoadLevelAverage": 3,
+            "nfLoadAvgInAoi": 4,
+        }
+    )
+    noti = EventNotification()
+    noti.nf_load_level_infos = [load_level_info]
+
+    return noti.model_dump()
+
+# print(create_notification_payload("ab12cd34-ef56-7890-ab12-cd34ef56789", "AMF"))
