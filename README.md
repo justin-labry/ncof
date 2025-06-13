@@ -1,93 +1,77 @@
-# ncof
 
+# NCOF API Server
 
+데이터모델과 API 스켈레톤은 [OpenAPI Generator](https://openapi-generator.tech) 를 사용 하였다.
 
-## Getting started
+- API version: 1.0.0
+- Generator version: 7.13.0-SNAPSHOT
+- Build package: org.openapitools.codegen.languages.PythonFastAPIServerCodegen
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+## Requirements.
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+Python >= 3.12
 
-## Add your files
+## Installation & Usage
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
+uv 가 없다면 다음 명령을 사용해서 설치한다.
+
+```sh
+pip install uv
+
+# 또는 다음 명령으로도 설치가 가능하다.
+# curl -LsSf https://astral.sh/uv/install.sh | sh
 
 ```
-cd existing_repo
-git remote add origin https://git.etri.re.kr/6g-i2p/ctrl-grp/ncof.git
-git branch -M main
-git push -uf origin main
+
+프로젝트 루트 디렉토리에서 다음 명령을 사용해서 프로젝트 의존성을 동기화 한다.
+
+```sh
+uv sync
 ```
 
-## Integrate with your tools
+서버를 시작하려면 프로젝트 루트 디렉토리에서 다음 명령을 실행한다.
 
-- [ ] [Set up project integrations](https://git.etri.re.kr/6g-i2p/ctrl-grp/ncof/-/settings/integrations)
+```sh
+sh run.sh
+```
 
-## Collaborate with your team
+run.sh 의 옵션은 다음과 같다.
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
+- PYTHONPATH=src
 
-## Test and Deploy
+  - Python 모듈 검색 경로에 src 디렉토리를 추가 (즉, src 폴더 내의 모듈을 import할 수 있도록 환경 설정)
 
-Use the built-in continuous integration in GitLab.
+- uv run
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+  - uv(uvicorn의 빠른 실행 래퍼 등)로 명령을 실행 (uv는 uvicorn을 포함한 여러 개발 도구를 통합적으로 실행할 수 있게 해주는 도구)
 
-***
+- uvicorn openapi_server.main:app
 
-# Editing this README
+  - uvicorn으로 ASGI 앱 실행
+  - openapi_server.main:app은 openapi_server/main.py 파일의 app 객체를 지정 (즉, FastAPI 인스턴스가 app 변수에 할당되어 있어야 함).
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+- --host 0.0.0.0
 
-## Suggestions for a good README
+  - 모든 네트워크 인터페이스(외부 포함)에서 접속 가능하도록 바인딩
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+- --port 8080
 
-## Name
-Choose a self-explaining name for your project.
+  - 8080번 포트에서 서버 실행
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+- --reload
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+  - 코드 변경 시 서버가 자동으로 재시작 (개발 환경에서 편리하게 사용, 운영 환경에서는 비권장).
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+- --log-config log_config.ini
+  - 로그 설정을 log_config.ini 파일에서 불러와 적용(로그 포맷, 핸들러 등 커스텀 가능).
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+확인을 위해서 웹 브라우저로 `http://localhost:8080/docs/` 접속한다.
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+## Tests
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+To run the tests:
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
-
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
-
-## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+```bash
+uv add pytest
+PYTHONPATH=src uv run pytest tests
+```

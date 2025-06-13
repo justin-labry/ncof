@@ -1,0 +1,17 @@
+[project]
+name = "ncof-generated-server"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "colored>=2.3.0",
+    "colorlog>=6.9.0",
+    "fastapi>=0.115.12",
+    "httpx>=0.28.1",
+    "pytest>=8.3.5",
+    "pyyaml>=6.0.2",
+    "sqlalchemy>=2.0.41",
+    "uuid>=1.30",
+    "uvicorn>=0.34.2",
+]
