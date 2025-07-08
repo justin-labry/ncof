@@ -199,6 +199,33 @@ class SubscriptionHandler(threading.Thread):
                 f"Error during notification sending: {self.subscription_id}, Error={str(e)}"
             )
 
+    def _check_value_change(self, nf_load_info) -> bool:
+        return True
+    
+    def _check_threshold_exceeded(self, nf_load_info) -> bool:
+        return True
+
+    def _process_on_event_detection(self):
+        """ON_EVENT_DETECTION: 이벤트 감지 즉시 처리"""
+        nf_load_infos: Dict[str, list[NfLoadLevelInformation]] = {}
+        self._aggregate_loads(nf_load_infos)
+        if nf_load_infos:
+            self._process_notifications(nf_load_infos)
+            self.report_count += 1
+            logger.info(f"[{self.subscription_id}] 🚨 ON_EVENT_DETECTION Notify ---> NF")
+        pass
+
+    def _process_on_change(self):
+        logger.info(f"[{self.subscription_id}] 🚨 ON_CHANGE Notify ---> NF")
+        self._increase_report_count()
+        pass
+    
+    def _process_on_threshold(self):
+        pass
+
+    def _increase_report_count(self):
+        self.report_count += 1
+
     def run(self):
         logger.info(f"Start handler: {self.subscription_id}")
         nf_load_infos: Dict[str, list[NfLoadLevelInformation]] = {}
@@ -219,39 +246,47 @@ class SubscriptionHandler(threading.Thread):
                     break
 
                 try:
-                    # if self.config.notif_method == "PERIODIC":
-                    #     print("PERIODIC")
 
                     if current_time - last_check_time >= 1.0:
                         print("1초마다 수행하는 작업")
+
+                          # notif_method에 따른 처리
+                        if self.config.notif_method == "ON_EVENT_DETECTION":
+                            if not self.notification_queue.empty():
+                                self._process_on_event_detection()
+                        elif self.config.notif_method == "ON_CHANGE":
+                            if not self.notification_queue.empty():
+                                self._process_on_change()
+                        elif self.config.notif_method == "ON_THRESHOLD":
+                            if not self.notification_queue.empty():
+                                self._process_on_threshold()
                         last_check_time = current_time
                         
-                    if current_time - last_report_time >= self.config.rep_period and self.config.notif_method == "PERIODIC":
+                    if (self.config.notif_method == "PERIODIC" and
+                        current_time - last_report_time >= self.config.rep_period):
                         self._aggregate_loads(nf_load_infos)
-                        self._process_notifications(nf_load_infos)
-                        logger.info(f"[{self.subscription_id}] 🚨 Notify ---> NF")
-                        self.report_count += 1
-                        # nf_load_infos.clear()
+                        if nf_load_infos:
+                            self._process_notifications(nf_load_infos)
+                            logger.info(f"[{self.subscription_id}] 🚨 PERIODIC Notify ---> NF")
+                            self._increase_report_count()
+                            # nf_load_infos.clear()
                         last_report_time = current_time
 
-                    # elapsed_time = time.time() - last_report_time
-                    # sleep_time = max(0, self.config.rep_period - elapsed_time) # 1초 주기
-                    # time.sleep(sleep_time)
-                    # print('sleep_time', sleep_time, 'rep_period', self.config.rep_period)
-
-                    # 다음 체크까지의 대기 시간 계산 (최대 1초)
+                    # 다음 체크까지의 대기 시간 계산
                     time_until_next_check = max(0, 1.0 - (current_time - last_check_time))
-                    time_until_next_report = max(0, self.config.rep_period - (current_time - last_report_time))
+
+
+                    if self.config.notif_method == "PERIODIC":
+                        time_until_next_report = max(0, self.config.rep_period - (current_time - last_report_time))
+                        sleep_time = min(time_until_next_check, time_until_next_report)
+                    else:
+                        sleep_time = time_until_next_check
                     
-                    # 더 빨리 와야 하는 시점까지의 시간으로 sleep
-                    sleep_time = min(time_until_next_check, time_until_next_report)
                     sleep_time = max(0.1, sleep_time)  # 최소 0.1초는 대기
-                    
                     time.sleep(sleep_time)
+                    
                 except Exception as e:
                     logger.error(f"Error during notification processing: {str(e)}")
-                    # elapsed_time = time.time() - last_report_time
-                    # sleep_time = max(0, self.config.rep_period - elapsed_time)
                     time.sleep(1.0)
 
     def add_notification(self, notification: NfLoadLevelInformation):
