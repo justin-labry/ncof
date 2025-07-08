@@ -23,22 +23,23 @@ TIMEZONE: timezone = timezone(timedelta(hours=9))
 class HandlerConfig:
     """주기적 보고를 위한 설정을 담는 데이터 클래스"""
 
-    report_period: float  # 알림 처리 주기 (초)
+    req_period: float  # 알림 처리 주기 (초)
     max_report_nbr: int  # 최대 보고 횟수
     mon_dur: Optional[datetime]  # 모니터링 지속 시간 (초, 선택)
     start_ts: Optional[datetime]  # 시작 타임스탬프 (선택)
     end_ts: Optional[datetime]  # 종료 타임스탬프 (선택)
+    
     notification_uri: Optional[str]  # 알림 URI (선택)
     log_level: int = logging.INFO  # 로그 레벨 기본값
 
     # 클래스 상수: 기본값 정의
-    DEFAULT_REPORT_PERIOD_SEC = 5.0  # 기본 보고 주기
+    DEFAULT_REQ_PERIOD_SEC = 5.0  # 기본 보고 주기
     DEFAULT_MAX_REPORT_NBR = 0  # 기본 최대 보고 횟수, 0이면 무제한
 
     def __post_init__(self):
         """설정값 유효성 검사"""
-        if self.report_period <= 0:
-            raise ValueError("report_period must be positive")
+        if self.req_period <= 0:
+            raise ValueError("req_period must be positive")
         if self.max_report_nbr < 0:
             raise ValueError("max_report_nbr cannot be negative")
         if (
@@ -62,8 +63,8 @@ class HandlerConfig:
         evt_req = getattr(event_subscription, "evt_req", None)
         extra_report_req = getattr(event_subscription, "extra_report_req", None)
 
-        report_period = getattr(
-            evt_req, "rep_period", HandlerConfig.DEFAULT_REPORT_PERIOD_SEC
+        rq_period = getattr(
+            evt_req, "rep_period", HandlerConfig.DEFAULT_REQ_PERIOD_SEC
         )
         max_report_nbr = getattr(
             evt_req, "max_report_nbr", HandlerConfig.DEFAULT_MAX_REPORT_NBR
@@ -74,7 +75,7 @@ class HandlerConfig:
         notification_uri = getattr(ncof_events_subscription, "notification_uri", None)
 
         return HandlerConfig(
-            report_period=report_period,
+            req_period=rq_period,
             max_report_nbr=max_report_nbr,
             mon_dur=mon_dur,
             start_ts=start_ts,
@@ -208,20 +209,20 @@ class SubscriptionHandler(threading.Thread):
                     break
 
                 try:
-                    if current_time - last_time >= self.config.report_period:
+                    if current_time - last_time >= self.config.req_period:
                         self._aggregate_loads(nf_load_infos)
                         self._process_notifications(nf_load_infos)
-                        logger.info(f"[{self.subscription_id}] Notify ---> NF")
+                        logger.info(f"[{self.subscription_id}] 🚨 Notify ---> NF")
                         self.report_count += 1
                         # nf_load_infos.clear()
                         last_time = time.time()
                     elapsed_time = time.time() - last_time
-                    sleep_time = max(0, self.config.report_period - elapsed_time)
+                    sleep_time = max(0, self.config.req_period - elapsed_time)
                     time.sleep(sleep_time)
                 except Exception as e:
                     logger.error(f"Error during notification processing: {str(e)}")
                     elapsed_time = time.time() - last_time
-                    sleep_time = max(0, self.config.report_period - elapsed_time)
+                    sleep_time = max(0, self.config.req_period - elapsed_time)
                     time.sleep(sleep_time)
 
     def add_notification(self, notification: NfLoadLevelInformation):

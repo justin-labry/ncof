@@ -31,7 +31,7 @@ from config.app_config import app_config
 router = APIRouter()
 
 
-def get_ncof_notification_uri(subscription_id: str) -> str:
+def build_ncof_notification_uri(subscription_id: str) -> str:
     return f"http://{app_config.server_ip}:{app_config.port}/{app_config.notification_prefix}/notifications/{subscription_id}"
 
 
@@ -95,9 +95,11 @@ async def create_ncof_events_subscription(
         new_nf_events_subscription = subscription.model_copy()
 
         # update the notification URI in the subscription
-        new_nf_events_subscription.notification_uri = get_ncof_notification_uri(
+        new_nf_events_subscription.notification_uri = build_ncof_notification_uri(
             subscription_id
         )
+        
+        new_nf_events_subscription.event_subscriptions[0].evt_req.rep_period = 1
 
         # 비동기 작업을 위한 태스크 리스트 생성
         async def execute_background_tasks():

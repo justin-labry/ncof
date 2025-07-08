@@ -7,7 +7,7 @@ from openapi_server.models.event_notification import EventNotification
 from openapi_server.models.nncof_events_subscription import NncofEventsSubscription
 
 
-app = FastAPI(title="AMF Simulator")
+app = FastAPI(title="AMF Mockup")
 
 @app.post("/subscriptions")
 async def subscribe(
@@ -36,9 +36,11 @@ async def subscribe(
             notify_multiple_times,
             subscription.notification_uri,
             notification_payload,
+            times=3,
+            delay=1,
         )
 
-    subscription_id = "smf-subscription-00001"
+    subscription_id = "amf-subscription-00001"
     logging.info(f"Background notification task added for {subscription.notification_uri}")
 
     return subscription_id
