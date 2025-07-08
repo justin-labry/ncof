@@ -4,13 +4,10 @@ from fastapi import BackgroundTasks, Body, FastAPI, HTTPException, status
 
 from .utils import create_notification_payload, notify_multiple_times
 from openapi_server.models.event_notification import EventNotification
-from openapi_server.models.nf_load_level_information import NfLoadLevelInformation
 from openapi_server.models.nncof_events_subscription import NncofEventsSubscription
 
 
-
 app = FastAPI(title="SMF Simulator")
-
 
 @app.post("/subscriptions")
 async def subscribe(
@@ -23,8 +20,6 @@ async def subscribe(
             detail="Request body is missing or notification_uri is not provided.",
         )
     logging.info(f"[Subscription] <--- {subscription.notification_uri}")
-
-    noti = EventNotification()
 
     nf_instance_id = "ab12cd34-ef56-7890-ab12-cd34ef567891"
     nf_type = "SMF"

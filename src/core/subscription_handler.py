@@ -114,19 +114,19 @@ class SubscriptionHandler(threading.Thread):
         )
 
         if self.config.start_ts and current_time < self.config.start_ts:
-            logger.debug(f"💥[start_ts] not yet started ({self.config.start_ts})")
+            logger.debug(f"🛑 [start_ts] not yet started ({self.config.start_ts})")
             return False
 
         if self.config.end_ts and current_time >= self.config.end_ts:
-            logger.info(f"💥[end_ts] exceeded ({self.config.end_ts})")
+            logger.info(f"🛑 [end_ts] exceeded ({self.config.end_ts})")
             return True
 
         if self.config.mon_dur is not None and current_time >= self.config.mon_dur:
-            logging.info(f"💥[mon_dur] exceeded ({self.config.mon_dur})")
+            logging.info(f"🛑 [mon_dur] exceeded ({self.config.mon_dur})")
             return True
 
         if self.report_count >= self.config.max_report_nbr:
-            logging.info(f"💥[max_report_nbr] excedeed ({self.config.max_report_nbr})")
+            logging.info(f"🛑 [max_report_nbr] excedeed ({self.config.max_report_nbr})")
             return True
 
         return False

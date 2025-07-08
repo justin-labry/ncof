@@ -66,6 +66,8 @@ async def create_ncof_events_subscription(
 ):
     event_subscription = subscription.event_subscriptions[0]
 
+    print(event_subscription.nf_load_lvl_thds[0].avg_traffic_rate)
+
     extra_report_req: Optional[EventReportingRequirement] = getattr(
         event_subscription, "extra_report_req", None
     )
