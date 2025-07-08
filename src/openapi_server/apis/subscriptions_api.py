@@ -92,7 +92,7 @@ async def create_ncof_events_subscription(
         # 구독 ID를 생성한다.
         subscription_id = str(uuid.uuid4())
 
-        new_nf_events_subscription = subscription.model_copy()
+        new_nf_events_subscription = subscription.model_copy(deep=True)
 
         # update the notification URI in the subscription
         new_nf_events_subscription.notification_uri = build_ncof_notification_uri(

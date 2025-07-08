@@ -23,23 +23,24 @@ TIMEZONE: timezone = timezone(timedelta(hours=9))
 class HandlerConfig:
     """주기적 보고를 위한 설정을 담는 데이터 클래스"""
 
-    req_period: float  # 알림 처리 주기 (초)
+    rep_period: float  # 알림 처리 주기 (초)
     max_report_nbr: int  # 최대 보고 횟수
     mon_dur: Optional[datetime]  # 모니터링 지속 시간 (초, 선택)
     start_ts: Optional[datetime]  # 시작 타임스탬프 (선택)
     end_ts: Optional[datetime]  # 종료 타임스탬프 (선택)
-    
+    notif_method: str  # 알림 방법 (선택)
+
     notification_uri: Optional[str]  # 알림 URI (선택)
     log_level: int = logging.INFO  # 로그 레벨 기본값
 
     # 클래스 상수: 기본값 정의
-    DEFAULT_REQ_PERIOD_SEC = 5.0  # 기본 보고 주기
+    DEFAULT_rep_period_SEC = 5.0  # 기본 보고 주기
     DEFAULT_MAX_REPORT_NBR = 0  # 기본 최대 보고 횟수, 0이면 무제한
 
     def __post_init__(self):
         """설정값 유효성 검사"""
-        if self.req_period <= 0:
-            raise ValueError("req_period must be positive")
+        if self.rep_period <= 0:
+            raise ValueError("rep_period must be positive")
         if self.max_report_nbr < 0:
             raise ValueError("max_report_nbr cannot be negative")
         if (
@@ -63,23 +64,30 @@ class HandlerConfig:
         evt_req = getattr(event_subscription, "evt_req", None)
         extra_report_req = getattr(event_subscription, "extra_report_req", None)
 
-        rq_period = getattr(
-            evt_req, "rep_period", HandlerConfig.DEFAULT_REQ_PERIOD_SEC
+        rep_period = getattr(
+            evt_req, "rep_period", HandlerConfig.DEFAULT_rep_period_SEC
         )
+
+        print("*******", evt_req.rep_period)
+
         max_report_nbr = getattr(
             evt_req, "max_report_nbr", HandlerConfig.DEFAULT_MAX_REPORT_NBR
         )
         mon_dur = getattr(evt_req, "mon_dur", None)
         start_ts = getattr(extra_report_req, "start_ts", None)
         end_ts = getattr(extra_report_req, "end_ts", None)
+
+        notif_method = getattr(evt_req, "notif_method", None)
+
         notification_uri = getattr(ncof_events_subscription, "notification_uri", None)
 
         return HandlerConfig(
-            req_period=rq_period,
+            rep_period=rep_period,
             max_report_nbr=max_report_nbr,
             mon_dur=mon_dur,
             start_ts=start_ts,
             end_ts=end_ts,
+            notif_method=notif_method,
             notification_uri=notification_uri,
             log_level=logging.INFO,
         )
@@ -194,7 +202,9 @@ class SubscriptionHandler(threading.Thread):
     def run(self):
         logger.info(f"Start handler: {self.subscription_id}")
         nf_load_infos: Dict[str, list[NfLoadLevelInformation]] = {}
-        last_time = time.time()
+        last_report_time = time.time()
+        last_check_time = time.time()
+
         while True:
             current_time = time.time()
             with self.lock:
@@ -209,21 +219,40 @@ class SubscriptionHandler(threading.Thread):
                     break
 
                 try:
-                    if current_time - last_time >= self.config.req_period:
+                    # if self.config.notif_method == "PERIODIC":
+                    #     print("PERIODIC")
+
+                    if current_time - last_check_time >= 1.0:
+                        print("1초마다 수행하는 작업")
+                        last_check_time = current_time
+                        
+                    if current_time - last_report_time >= self.config.rep_period and self.config.notif_method == "PERIODIC":
                         self._aggregate_loads(nf_load_infos)
                         self._process_notifications(nf_load_infos)
                         logger.info(f"[{self.subscription_id}] 🚨 Notify ---> NF")
                         self.report_count += 1
                         # nf_load_infos.clear()
-                        last_time = time.time()
-                    elapsed_time = time.time() - last_time
-                    sleep_time = max(0, self.config.req_period - elapsed_time)
+                        last_report_time = current_time
+
+                    # elapsed_time = time.time() - last_report_time
+                    # sleep_time = max(0, self.config.rep_period - elapsed_time) # 1초 주기
+                    # time.sleep(sleep_time)
+                    # print('sleep_time', sleep_time, 'rep_period', self.config.rep_period)
+
+                    # 다음 체크까지의 대기 시간 계산 (최대 1초)
+                    time_until_next_check = max(0, 1.0 - (current_time - last_check_time))
+                    time_until_next_report = max(0, self.config.rep_period - (current_time - last_report_time))
+                    
+                    # 더 빨리 와야 하는 시점까지의 시간으로 sleep
+                    sleep_time = min(time_until_next_check, time_until_next_report)
+                    sleep_time = max(0.1, sleep_time)  # 최소 0.1초는 대기
+                    
                     time.sleep(sleep_time)
                 except Exception as e:
                     logger.error(f"Error during notification processing: {str(e)}")
-                    elapsed_time = time.time() - last_time
-                    sleep_time = max(0, self.config.req_period - elapsed_time)
-                    time.sleep(sleep_time)
+                    # elapsed_time = time.time() - last_report_time
+                    # sleep_time = max(0, self.config.rep_period - elapsed_time)
+                    time.sleep(1.0)
 
     def add_notification(self, notification: NfLoadLevelInformation):
         if self.running:
