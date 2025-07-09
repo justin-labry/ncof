@@ -18,8 +18,6 @@ import re  # noqa: F401
 import json
 
 
-
-
 from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
@@ -32,37 +30,85 @@ from openapi_server.models.reporting_information import ReportingInformation
 from openapi_server.models.snssai import Snssai
 from openapi_server.models.target_ue_information import TargetUeInformation
 from openapi_server.models.threshold_level import ThresholdLevel
+
 try:
     from typing import Self
 except ImportError:
     from typing_extensions import Self
 
+
 class EventSubscription(BaseModel):
     """
     Represents a subscription to a single event.
-    """ # noqa: E501
-    any_slice: Optional[StrictBool] = Field(default=None, description="\"false\" represents not applicable for all slices. \"true\" represents applicable for all slices. ", alias="anySlice")
-    app_ids: Optional[Annotated[List[StrictStr], Field(min_length=1)]] = Field(default=None, description="Identification(s) of application to which the subscription applies.", alias="appIds")
+    """  # noqa: E501
+
+    any_slice: Optional[StrictBool] = Field(
+        default=None,
+        description='"false" represents not applicable for all slices. "true" represents applicable for all slices. ',
+        alias="anySlice",
+    )
+    app_ids: Optional[Annotated[List[StrictStr], Field(min_length=1)]] = Field(
+        default=None,
+        description="Identification(s) of application to which the subscription applies.",
+        alias="appIds",
+    )
     event: Optional[NwdafEvent] = None
-    extra_report_req: Optional[EventReportingRequirement] = Field(default=None, alias="extraReportReq")
-    notification_method: Optional[NotificationMethod] = Field(default=None, alias="notificationMethod")
-    nf_load_lvl_thds: Optional[Annotated[List[ThresholdLevel], Field(min_length=1)]] = Field(default=None, description="Shall be supplied in order to start reporting when an average load level is reached. ", alias="nfLoadLvlThds")
-    nf_instance_ids: Optional[List[StrictStr]] = Field(default=None, alias="nfInstanceIds")
-    nf_set_ids: Optional[Annotated[List[StrictStr], Field(min_length=1)]] = Field(default=None, alias="nfSetIds")
-    nf_types: Optional[Annotated[List[NFType], Field(min_length=1)]] = Field(default=None, alias="nfTypes")
-    snssaia: Optional[Annotated[List[Snssai], Field(min_length=1)]] = Field(default=None, description="Identification(s) of network slice to which the subscription applies. It corresponds to snssais in the data model definition of 3GPP TS 29.520.  ")
+    extra_report_req: Optional[EventReportingRequirement] = Field(
+        default=None, alias="extraReportReq"
+    )
+    notification_method: Optional[NotificationMethod] = Field(
+        default=None, alias="notificationMethod"
+    )
+    nf_load_lvl_thds: Optional[Annotated[List[ThresholdLevel], Field(min_length=1)]] = (
+        Field(
+            default=None,
+            description="Shall be supplied in order to start reporting when an average load level is reached. ",
+            alias="nfLoadLvlThds",
+        )
+    )
+    nf_instance_ids: Optional[List[StrictStr]] = Field(
+        default=None, alias="nfInstanceIds"
+    )
+    nf_set_ids: Optional[Annotated[List[StrictStr], Field(min_length=1)]] = Field(
+        default=None, alias="nfSetIds"
+    )
+    nf_types: Optional[Annotated[List[NFType], Field(min_length=1)]] = Field(
+        default=None, alias="nfTypes"
+    )
+    snssaia: Optional[Annotated[List[Snssai], Field(min_length=1)]] = Field(
+        default=None,
+        description="Identification(s) of network slice to which the subscription applies. It corresponds to snssais in the data model definition of 3GPP TS 29.520.  ",
+    )
     tgt_ue: Optional[TargetUeInformation] = Field(default=None, alias="tgtUe")
-    cong_thresholds: Optional[Annotated[List[ThresholdLevel], Field(min_length=1)]] = Field(default=None, alias="congThresholds")
-    expt_ana_type: Optional[ExpectedAnalyticsType] = Field(default=None, alias="exptAnaType")
+    cong_thresholds: Optional[Annotated[List[ThresholdLevel], Field(min_length=1)]] = (
+        Field(default=None, alias="congThresholds")
+    )
+    expt_ana_type: Optional[ExpectedAnalyticsType] = Field(
+        default=None, alias="exptAnaType"
+    )
     evt_req: Optional[ReportingInformation] = Field(default=None, alias="evtReq")
-    __properties: ClassVar[List[str]] = ["anySlice", "appIds", "event", "extraReportReq", "notificationMethod", "nfLoadLvlThds", "nfInstanceIds", "nfSetIds", "nfTypes", "snssaia", "tgtUe", "congThresholds", "exptAnaType", "evtReq"]
+    __properties: ClassVar[List[str]] = [
+        "anySlice",
+        "appIds",
+        "event",
+        "extraReportReq",
+        "notificationMethod",
+        "nfLoadLvlThds",
+        "nfInstanceIds",
+        "nfSetIds",
+        "nfTypes",
+        "snssaia",
+        "tgtUe",
+        "congThresholds",
+        "exptAnaType",
+        "evtReq",
+    ]
 
     model_config = {
         "populate_by_name": True,
         "validate_assignment": True,
         "protected_namespaces": (),
     }
-
 
     def to_str(self) -> str:
         """Returns the string representation of the model using alias"""
@@ -90,56 +136,55 @@ class EventSubscription(BaseModel):
         """
         _dict = self.model_dump(
             by_alias=True,
-            exclude={
-            },
+            exclude={},
             exclude_none=True,
         )
         # override the default output from pydantic by calling `to_dict()` of event
         if self.event:
-            _dict['event'] = self.event.to_dict()
+            _dict["event"] = self.event.to_dict()
         # override the default output from pydantic by calling `to_dict()` of extra_report_req
         if self.extra_report_req:
-            _dict['extraReportReq'] = self.extra_report_req.to_dict()
+            _dict["extraReportReq"] = self.extra_report_req.to_dict()
         # override the default output from pydantic by calling `to_dict()` of notification_method
         if self.notification_method:
-            _dict['notificationMethod'] = self.notification_method.to_dict()
+            _dict["notificationMethod"] = self.notification_method.to_dict()
         # override the default output from pydantic by calling `to_dict()` of each item in nf_load_lvl_thds (list)
         _items = []
         if self.nf_load_lvl_thds:
             for _item in self.nf_load_lvl_thds:
                 if _item:
                     _items.append(_item.to_dict())
-            _dict['nfLoadLvlThds'] = _items
+            _dict["nfLoadLvlThds"] = _items
         # override the default output from pydantic by calling `to_dict()` of each item in nf_types (list)
         _items = []
         if self.nf_types:
             for _item in self.nf_types:
                 if _item:
                     _items.append(_item.to_dict())
-            _dict['nfTypes'] = _items
+            _dict["nfTypes"] = _items
         # override the default output from pydantic by calling `to_dict()` of each item in snssaia (list)
         _items = []
         if self.snssaia:
             for _item in self.snssaia:
                 if _item:
                     _items.append(_item.to_dict())
-            _dict['snssaia'] = _items
+            _dict["snssaia"] = _items
         # override the default output from pydantic by calling `to_dict()` of tgt_ue
         if self.tgt_ue:
-            _dict['tgtUe'] = self.tgt_ue.to_dict()
+            _dict["tgtUe"] = self.tgt_ue.to_dict()
         # override the default output from pydantic by calling `to_dict()` of each item in cong_thresholds (list)
         _items = []
         if self.cong_thresholds:
             for _item in self.cong_thresholds:
                 if _item:
                     _items.append(_item.to_dict())
-            _dict['congThresholds'] = _items
+            _dict["congThresholds"] = _items
         # override the default output from pydantic by calling `to_dict()` of expt_ana_type
         if self.expt_ana_type:
-            _dict['exptAnaType'] = self.expt_ana_type.to_dict()
+            _dict["exptAnaType"] = self.expt_ana_type.to_dict()
         # override the default output from pydantic by calling `to_dict()` of evt_req
         if self.evt_req:
-            _dict['evtReq'] = self.evt_req.to_dict()
+            _dict["evtReq"] = self.evt_req.to_dict()
         return _dict
 
     @classmethod
@@ -151,22 +196,67 @@ class EventSubscription(BaseModel):
         if not isinstance(obj, dict):
             return cls.model_validate(obj)
 
-        _obj = cls.model_validate({
-            "anySlice": obj.get("anySlice"),
-            "appIds": obj.get("appIds"),
-            "event": NwdafEvent.from_dict(obj.get("event")) if obj.get("event") is not None else None,
-            "extraReportReq": EventReportingRequirement.from_dict(obj.get("extraReportReq")) if obj.get("extraReportReq") is not None else None,
-            "notificationMethod": NotificationMethod.from_dict(obj.get("notificationMethod")) if obj.get("notificationMethod") is not None else None,
-            "nfLoadLvlThds": [ThresholdLevel.from_dict(_item) for _item in obj.get("nfLoadLvlThds")] if obj.get("nfLoadLvlThds") is not None else None,
-            "nfInstanceIds": obj.get("nfInstanceIds"),
-            "nfSetIds": obj.get("nfSetIds"),
-            "nfTypes": [NFType.from_dict(_item) for _item in obj.get("nfTypes")] if obj.get("nfTypes") is not None else None,
-            "snssaia": [Snssai.from_dict(_item) for _item in obj.get("snssaia")] if obj.get("snssaia") is not None else None,
-            "tgtUe": TargetUeInformation.from_dict(obj.get("tgtUe")) if obj.get("tgtUe") is not None else None,
-            "congThresholds": [ThresholdLevel.from_dict(_item) for _item in obj.get("congThresholds")] if obj.get("congThresholds") is not None else None,
-            "exptAnaType": ExpectedAnalyticsType.from_dict(obj.get("exptAnaType")) if obj.get("exptAnaType") is not None else None,
-            "evtReq": ReportingInformation.from_dict(obj.get("evtReq")) if obj.get("evtReq") is not None else None
-        })
+        _obj = cls.model_validate(
+            {
+                "anySlice": obj.get("anySlice"),
+                "appIds": obj.get("appIds"),
+                # "event": NwdafEvent.from_dict(obj.get("event")) if obj.get("event") is not None else None,
+                "event": obj.get("event") if obj.get("event") is not None else None,
+                "extraReportReq": (
+                    EventReportingRequirement.from_dict(obj.get("extraReportReq"))
+                    if obj.get("extraReportReq") is not None
+                    else None
+                ),
+                "notificationMethod": (
+                    # NotificationMethod.from_dict(obj.get("notificationMethod"))
+                    obj.get("notificationMethod")
+                    if obj.get("notificationMethod") is not None
+                    else None
+                ),
+                "nfLoadLvlThds": (
+                    [
+                        ThresholdLevel.from_dict(_item)
+                        for _item in obj.get("nfLoadLvlThds")
+                    ]
+                    if obj.get("nfLoadLvlThds") is not None
+                    else None
+                ),
+                "nfInstanceIds": obj.get("nfInstanceIds"),
+                "nfSetIds": obj.get("nfSetIds"),
+                "nfTypes": (
+                    # [NFType.from_dict(_item) for _item in obj.get("nfTypes")]
+                    obj.get("nfTypes")
+                    if obj.get("nfTypes") is not None
+                    else None
+                ),
+                "snssaia": (
+                    [Snssai.from_dict(_item) for _item in obj.get("snssaia")]
+                    if obj.get("snssaia") is not None
+                    else None
+                ),
+                "tgtUe": (
+                    TargetUeInformation.from_dict(obj.get("tgtUe"))
+                    if obj.get("tgtUe") is not None
+                    else None
+                ),
+                "congThresholds": (
+                    [
+                        ThresholdLevel.from_dict(_item)
+                        for _item in obj.get("congThresholds")
+                    ]
+                    if obj.get("congThresholds") is not None
+                    else None
+                ),
+                "exptAnaType": (
+                    ExpectedAnalyticsType.from_dict(obj.get("exptAnaType"))
+                    if obj.get("exptAnaType") is not None
+                    else None
+                ),
+                "evtReq": (
+                    ReportingInformation.from_dict(obj.get("evtReq"))
+                    if obj.get("evtReq") is not None
+                    else None
+                ),
+            }
+        )
         return _obj
-
-

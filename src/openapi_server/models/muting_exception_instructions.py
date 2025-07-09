@@ -18,22 +18,27 @@ import re  # noqa: F401
 import json
 
 
-
-
 from pydantic import BaseModel, ConfigDict, Field
 from typing import Any, ClassVar, Dict, List, Optional
-from openapi_server.models.buffered_notifications_action import BufferedNotificationsAction
+from openapi_server.models.buffered_notifications_action import (
+    BufferedNotificationsAction,
+)
 from openapi_server.models.subscription_action import SubscriptionAction
+
 try:
     from typing import Self
 except ImportError:
     from typing_extensions import Self
 
+
 class MutingExceptionInstructions(BaseModel):
     """
-    Indicates to an Event producer NF instructions for the subscription and stored events when an exception (e.g. full buffer) occurs at the Event producer NF while the event is muted. 
-    """ # noqa: E501
-    buffered_notifs: Optional[BufferedNotificationsAction] = Field(default=None, alias="bufferedNotifs")
+    Indicates to an Event producer NF instructions for the subscription and stored events when an exception (e.g. full buffer) occurs at the Event producer NF while the event is muted.
+    """  # noqa: E501
+
+    buffered_notifs: Optional[BufferedNotificationsAction] = Field(
+        default=None, alias="bufferedNotifs"
+    )
     subscription: Optional[SubscriptionAction] = None
     __properties: ClassVar[List[str]] = ["bufferedNotifs", "subscription"]
 
@@ -42,7 +47,6 @@ class MutingExceptionInstructions(BaseModel):
         "validate_assignment": True,
         "protected_namespaces": (),
     }
-
 
     def to_str(self) -> str:
         """Returns the string representation of the model using alias"""
@@ -70,16 +74,15 @@ class MutingExceptionInstructions(BaseModel):
         """
         _dict = self.model_dump(
             by_alias=True,
-            exclude={
-            },
+            exclude={},
             exclude_none=True,
         )
         # override the default output from pydantic by calling `to_dict()` of buffered_notifs
         if self.buffered_notifs:
-            _dict['bufferedNotifs'] = self.buffered_notifs.to_dict()
+            _dict["bufferedNotifs"] = self.buffered_notifs.to_dict()
         # override the default output from pydantic by calling `to_dict()` of subscription
         if self.subscription:
-            _dict['subscription'] = self.subscription.to_dict()
+            _dict["subscription"] = self.subscription.to_dict()
         return _dict
 
     @classmethod
@@ -91,10 +94,20 @@ class MutingExceptionInstructions(BaseModel):
         if not isinstance(obj, dict):
             return cls.model_validate(obj)
 
-        _obj = cls.model_validate({
-            "bufferedNotifs": BufferedNotificationsAction.from_dict(obj.get("bufferedNotifs")) if obj.get("bufferedNotifs") is not None else None,
-            "subscription": SubscriptionAction.from_dict(obj.get("subscription")) if obj.get("subscription") is not None else None
-        })
+        _obj = cls.model_validate(
+            {
+                # "bufferedNotifs": BufferedNotificationsAction.from_dict(obj.get("bufferedNotifs")) if obj.get("bufferedNotifs") is not None else None,
+                "bufferedNotifs": (
+                    obj.get("bufferedNotifs")
+                    if obj.get("bufferedNotifs") is not None
+                    else None
+                ),
+                "subscription": (
+                    # SubscriptionAction.from_dict(obj.get("subscription"))
+                    obj.get("subscription")
+                    if obj.get("subscription") is not None
+                    else None
+                ),
+            }
+        )
         return _obj
-
-

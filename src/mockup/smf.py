@@ -9,6 +9,7 @@ from openapi_server.models.nncof_events_subscription import NncofEventsSubscript
 
 app = FastAPI(title="SMF Mockup")
 
+
 @app.post("/subscriptions")
 async def subscribe(
     background_tasks: BackgroundTasks,  # BackgroundTasks 주입
@@ -41,7 +42,9 @@ async def subscribe(
         )
 
     subscription_id = "smf-subscription-00001"
-    logging.info(f"Background notification task added for {subscription.notification_uri}")
+    logging.info(
+        f"Background notification task added for {subscription.notification_uri}"
+    )
 
     return subscription_id
 
