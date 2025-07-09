@@ -1,4 +1,6 @@
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 
 from openapi_server.apis import (
     subscription_transfer_api,
@@ -25,6 +27,14 @@ app = FastAPI(
     description="NCOF Events Subscription Service API. © 2025, 3GPP Organizational Partners (ARIB, ATIS, CCSA, ETSI, TSDSI, TTA, TTC).   All rights reserved. ",
     version="1.0.0",
 )
+
+app.mount("/public", StaticFiles(directory="public"), name="public")
+
+
+@app.get("/", include_in_schema=False)
+async def root():
+    return FileResponse("public/index.html")
+
 
 NOTIFICATION_PREFIX = f"/{app_config.notification_prefix}"
 SUBSCRIPTION_PREFIX = f"/{app_config.subscription_prefix}"
