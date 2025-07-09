@@ -66,12 +66,6 @@ async def create_ncof_events_subscription(
 ):
     event_subscription = subscription.event_subscriptions[0]
 
-    print(event_subscription.nf_load_lvl_thds[0].avg_traffic_rate)
-
-    extra_report_req: Optional[EventReportingRequirement] = getattr(
-        event_subscription, "extra_report_req", None
-    )
-
     if not event_subscription.nf_types:
         raise HTTPException(
             status_code=400,
@@ -98,7 +92,7 @@ async def create_ncof_events_subscription(
         new_nf_events_subscription.notification_uri = build_ncof_notification_uri(
             subscription_id
         )
-        
+
         new_nf_events_subscription.event_subscriptions[0].evt_req.rep_period = 1
 
         # 비동기 작업을 위한 태스크 리스트 생성
@@ -117,6 +111,7 @@ async def create_ncof_events_subscription(
                 if isinstance(result, Exception):
                     raise Exception("fail to subscribe")
             return True
+
         # 모든 NF로 subscription 이 성공해야 구독완료
         try:
             await execute_background_tasks()

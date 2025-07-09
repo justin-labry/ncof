@@ -9,6 +9,8 @@ from fastapi import BackgroundTasks, Body, FastAPI
 
 from openapi_server.models.event_notification import EventNotification
 from openapi_server.models.nncof_events_subscription import NncofEventsSubscription
+from utils.color import red, green, orange, blue, yellow, magenta, cyan, white
+
 
 async def subscribe():
     """
@@ -27,8 +29,19 @@ async def receive_notification(
     background_tasks: BackgroundTasks,  # BackgroundTasks 주입
     event_notification: EventNotification = Body(None, description=""),
 ):
+    load_level_info = event_notification.nf_load_level_infos[0]
 
-    print(json.dumps(event_notification.model_dump(), indent=2))
+    nf_instance_id = load_level_info.nf_instance_id
+    nf_type = load_level_info.nf_type
+    cpu_usage = load_level_info.nf_cpu_usage
+    memory_usage = load_level_info.nf_memory_usage
+    storage_usage = load_level_info.nf_storage_usage
+
+    logging.info(f"{green('Receive notification')}")
+    logging.info(f"  [{nf_type}] - {nf_instance_id}")
+    logging.info(f"  CPU: {cpu_usage} Memory: {memory_usage} Storage: {storage_usage}")
+
+    # print(json.dumps(event_notification.model_dump(), indent=2))
 
     return
 
@@ -115,11 +128,9 @@ event_subscription = NncofEventsSubscription.from_dict(
 
 ncof_url = "http://localhost:8080/ETRI_INRS_TEAM/NCOF_Nncof_EventSubscription/1.0.0/subscriptions"
 
-# print(event_subscription)
-
 
 def run_server():
-    uvicorn.run(app, host="0.0.0.0", port=8081)
+    uvicorn.run(app, host="0.0.0.0", port=8081, log_config="log_config.ini")
 
 
 if __name__ == "__main__":
@@ -129,10 +140,10 @@ if __name__ == "__main__":
     server_thread.start()
 
     while True:
-        command = input("Enter 'subscribe' to send subscription, or 'exit' to quit: ")
-        if command.lower() == "subscribe":
+        command = input("Enter 's' to send subscription, or 'q' to quit: ")
+        if command.lower() == "s":
             asyncio.run(subscribe())
-        elif command.lower() == "exit":
+        elif command.lower() == "q":
             break
         else:
-            print("Unknown command.")
+            logging.info("Unknown command.")

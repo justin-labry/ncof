@@ -3,16 +3,19 @@ import logging
 from fastapi import BackgroundTasks, Body, FastAPI, HTTPException, status
 
 from .utils import create_notification_payload, notify_multiple_times
-from openapi_server.models.event_notification import EventNotification
 from openapi_server.models.nncof_events_subscription import NncofEventsSubscription
 
+# import colored
+# from colored import Fore, Style
+
+from utils.color import red, green, orange, blue, yellow, magenta, cyan, white
 
 app = FastAPI(title="SMF Mockup")
 
 
 @app.post("/subscriptions")
 async def subscribe(
-    background_tasks: BackgroundTasks,  # BackgroundTasks 주입
+    background_tasks: BackgroundTasks,
     subscription: NncofEventsSubscription = Body(None, description=""),
 ):
     if not subscription or not subscription.notification_uri:
@@ -20,7 +23,7 @@ async def subscribe(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Request body is missing or notification_uri is not provided.",
         )
-    logging.info(f"[Subscription] <--- {subscription.notification_uri}")
+    logging.info(f"{red('Create subscription')} - {subscription.notification_uri}")
 
     nf_instance_id = "ab12cd34-ef56-7890-ab12-cd34ef567891"
     nf_type = "SMF"
@@ -42,9 +45,6 @@ async def subscribe(
         )
 
     subscription_id = "smf-subscription-00001"
-    logging.info(
-        f"Background notification task added for {subscription.notification_uri}"
-    )
 
     return subscription_id
 

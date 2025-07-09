@@ -18,6 +18,8 @@ from .ifc import SubscriberManagerIfc
 logger = logging.getLogger(__name__)
 TIMEZONE: timezone = timezone(timedelta(hours=9))
 
+from utils.color import red, green, orange, blue, yellow, magenta, cyan, white
+
 
 @dataclass(frozen=True)  # 불변으로 설정
 class HandlerConfig:
@@ -68,8 +70,6 @@ class HandlerConfig:
             evt_req, "rep_period", HandlerConfig.DEFAULT_rep_period_SEC
         )
 
-        print("*******", evt_req.rep_period)
-
         max_report_nbr = getattr(
             evt_req, "max_report_nbr", HandlerConfig.DEFAULT_MAX_REPORT_NBR
         )
@@ -108,7 +108,7 @@ class SubscriptionHandler(threading.Thread):
         self.subscription_manager = handler_manager
         self.notification_queue = queue.Queue()
         self.start_time = time.time()
-        self.loop = asyncio.get_event_loop()  # 기존 이벤트 루프 재사용
+        self.loop = asyncio.get_event_loop()
         self.lock = threading.Lock()
         self.config = config
 
@@ -123,19 +123,25 @@ class SubscriptionHandler(threading.Thread):
         )
 
         if self.config.start_ts and current_time < self.config.start_ts:
-            logger.debug(f"🛑 [start_ts] not yet started ({self.config.start_ts})")
+            logger.debug(
+                f"{red('종료조건')} - start_ts not yet started ({self.config.start_ts})"
+            )
             return False
 
         if self.config.end_ts and current_time >= self.config.end_ts:
-            logger.info(f"🛑 [end_ts] exceeded ({self.config.end_ts})")
+            logger.info(f"{red('종료조건')} - end_ts exceeded ({self.config.end_ts})")
             return True
 
         if self.config.mon_dur is not None and current_time >= self.config.mon_dur:
-            logging.info(f"🛑 [mon_dur] exceeded ({self.config.mon_dur})")
+            logging.info(
+                f"{red('종료조건')} - mon_dur exceeded ({self.config.mon_dur})"
+            )
             return True
 
         if self.report_count >= self.config.max_report_nbr:
-            logging.info(f"🛑 [max_report_nbr] excedeed ({self.config.max_report_nbr})")
+            logging.info(
+                f"{red('종료조건')} - max_report_nbr excedeed ({self.config.max_report_nbr})"
+            )
             return True
 
         return False
@@ -250,7 +256,6 @@ class SubscriptionHandler(threading.Thread):
                 try:
 
                     if current_time - last_check_time >= 1.0:
-                        print("1초마다 수행하는 작업")
 
                         # notif_method에 따른 처리
                         if self.config.notif_method == "ON_EVENT_DETECTION":
@@ -272,7 +277,7 @@ class SubscriptionHandler(threading.Thread):
                         if nf_load_infos:
                             self._process_notifications(nf_load_infos)
                             logger.info(
-                                f"[{self.subscription_id}] 🚨 PERIODIC Notify ---> NF"
+                                f"[{self.subscription_id}] {green('PERIODIC Notify')} ---> NF"
                             )
                             self._increase_report_count()
                             # nf_load_infos.clear()
@@ -309,4 +314,4 @@ class SubscriptionHandler(threading.Thread):
     def stop(self):
         """핸들러 중지"""
         self.running = False
-        logger.info(f"Stop handler: {self.subscription_id}")
+        logger.info(f"{red('Handler stopped')}: {self.subscription_id}")

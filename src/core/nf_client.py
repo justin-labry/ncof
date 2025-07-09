@@ -3,10 +3,6 @@ from typing import Any, Dict, Optional
 
 import httpx
 
-
-import httpx
-import logging
-from typing import Dict, Any, Optional
 from dataclasses import dataclass
 
 
@@ -33,18 +29,12 @@ async def _make_post_request(
     Returns:
         ApiResponse 객체 (상태 코드, 본문, 오류 메시지)
     """
-    # logging.info(f"Sending {log_context} request to {uri} (ID: {request_id})")
-
     timeout = httpx.Timeout(connect=5.0, read=10.0, write=5.0, pool=5.0)
 
     try:
         async with httpx.AsyncClient(timeout=timeout) as client:
             response = await client.post(uri, json=payload)
             response.raise_for_status()
-            logging.info(
-                f"{log_context.capitalize()} request to {uri} (ID: {request_id}) "
-                f"succeeded with status {response.status_code}"
-            )
             return ApiResponse(
                 status_code=response.status_code,
                 body=response.json() if response.content else None,
@@ -99,11 +89,6 @@ async def subscribe_to_nf(
         return response.body
 
     raise Exception(response.error)
-    # return (
-    #     response.body
-    #     if response.status_code >= 200 and response.status_code < 300
-    #     else None
-    # )
 
 
 async def send_notification(

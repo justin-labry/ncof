@@ -25,5 +25,3 @@
 #         Returns:
 #             None
 #         """
-#         print(f"subscription_id: {subscription_id}")
-#         print(json.dumps(event_notification.model_dump(), indent=2))

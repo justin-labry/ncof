@@ -4,22 +4,22 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Dynamic Intro Page - Vue.js</title>
+    <title>NCOF Events Subscription Service</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        
-
-        
     </style>
 </head>
 
 <body class="bg-[#1a1a1a] text-white font-['Segoe_UI',_Tahoma,_Geneva,_Verdana,_sans-serif] overflow-hidden">
-    <div id="app" class="flex flex-col justify-center items-center h-screen text-center">
+    <div id="app" class="flex flex-col justify-center items-center h-screen text-center gap-2">
         <h1 class="text-4xl font-bold">
             Welcome to NCOF Events Subscription Service
         </h1>
         <p class="text-xl mt-2">
-            Discover something new and exciting.
+            Network Control & Optimization Function
+        </p>
+        <p class="text-sm mt-2">
+            ver 0.1.0
         </p>
         <button @click="enter"
             class="mt-8 px-6 py-3 border border-white rounded-md bg-transparent text-white cursor-pointer transition-colors duration-300 hover:bg-white hover:text-[#1a1a1a] font-semibold">
@@ -28,12 +28,12 @@
     </div>
 
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-    
+
     <script>
         const { createApp } = Vue;
 
         createApp({
-            
+
             methods: {
                 enter() {
                     window.location.href = "public/main.html";

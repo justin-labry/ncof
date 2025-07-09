@@ -5,4 +5,4 @@ export PYTHONPATH=src
 #     # --reload \
 #     --log-config "$(dirname "$0")/log_config.ini"
 
-python -m mockup.nf
+uv run -m mockup.nf

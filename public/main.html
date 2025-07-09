@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Subscription List - Vue.js</title>
+    <title>Subscription List</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         [v-cloak] {
@@ -52,7 +52,8 @@
                 </thead>
                 <tbody class="text-gray-600 text-sm font-light">
                     <tr v-if="error">
-                        <td colspan="6" class="text-center text-red-500 p-4">Error loading subscriptions: {{ error }}</td>
+                        <td colspan="6" class="text-center text-red-500 p-4">Error loading subscriptions: {{ error }}
+                        </td>
                     </tr>
                     <tr v-else-if="!hasSubscriptions">
                         <td colspan="6" class="py-3 px-6 text-center text-gray-500">No subscriptions found.</td>
@@ -61,8 +62,10 @@
                         class="border-b border-gray-200 hover:bg-gray-100">
                         <td class="py-3 px-6 text-left whitespace-nowrap">{{ subId }}</td>
                         <td class="py-3 px-6 text-left">{{ subscription.notificationUri }}</td>
-                        <td class="py-3 px-6 text-left">{{ (subscription.eventSubscriptions[0]?.nfTypes || []).join(', ') }}</td>
-                        <td class="py-3 px-6 text-left">{{ (subscription.eventSubscriptions[0]?.events || []).map(e => e.event).join(', ') }}</td>
+                        <td class="py-3 px-6 text-left">{{ (subscription.eventSubscriptions[0]?.nfTypes || []).join(',
+                            ') }}</td>
+                        <td class="py-3 px-6 text-left">{{ (subscription.eventSubscriptions[0]?.events || []).map(e =>
+                            e.event).join(', ') }}</td>
                         <td class="py-3 px-6 text-center">
                             <button @click="showModal(subscription)"
                                 class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-3 rounded-full text-xs">
