@@ -28,7 +28,7 @@ pip install uv
 uv sync
 ```
 
-서버를 시작하려면 프로젝트 루트 디렉토리에서 다음 명령을 실행한다.
+NCOF 를 시작하려면 프로젝트 루트 디렉토리에서 다음 명령을 실행한다.
 
 ```sh
 sh run.sh
@@ -65,6 +65,29 @@ run.sh 의 옵션은 다음과 같다.
   - 로그 설정을 log_config.ini 파일에서 불러와 적용(로그 포맷, 핸들러 등 커스텀 가능).
 
 확인을 위해서 웹 브라우저로 `http://localhost:8080/docs/` 접속한다.
+
+## Mockup
+
+NCOF 기능 확인을 위해서 NF, SMF, AMF Mockup을 구현하였다. 각 Mockup은 FastAPI 를 사용해서 기본적인 API를 구현한다.
+
+### NF Mockup
+
+```
+sh run_nf.sh
+```
+실행 후 터미널에서 'subscribe' 명령을 사용하면 NCOF 로 미리 설정된 subscription 요청이 보내진다.
+
+### SMF Mockup
+
+```
+sh run_smf.sh
+```
+
+### AMF Mockup
+
+```
+sh run_amf.sh
+```
 
 ## Tests
 

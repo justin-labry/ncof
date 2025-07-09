@@ -4,10 +4,9 @@ import httpx
 import asyncio
 import threading
 import uvicorn
-from contextlib import asynccontextmanager
 
-from fastapi import BackgroundTasks, Body, FastAPI, HTTPException, status
-from .utils import create_notification_payload, notify_multiple_times
+from fastapi import BackgroundTasks, Body, FastAPI
+
 from openapi_server.models.event_notification import EventNotification
 from openapi_server.models.nncof_events_subscription import NncofEventsSubscription
 
