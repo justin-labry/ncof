@@ -69,10 +69,10 @@ class HandlerConfig:
         rep_period = getattr(
             evt_req, "rep_period", HandlerConfig.DEFAULT_rep_period_SEC
         )
-
         max_report_nbr = getattr(
             evt_req, "max_report_nbr", HandlerConfig.DEFAULT_MAX_REPORT_NBR
         )
+        print("--->", max_report_nbr)
         mon_dur = getattr(evt_req, "mon_dur", None)
         start_ts = getattr(extra_report_req, "start_ts", None)
         end_ts = getattr(extra_report_req, "end_ts", None)

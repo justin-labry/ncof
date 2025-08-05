@@ -36,17 +36,24 @@
 
   <body class="bg-gray-100 text-gray-800">
     <div id="app" v-cloak class="container mx-auto p-4">
-      <h1 class="text-3xl font-bold mb-6 text-center">Subscription List</h1>
+      <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold">NCOF Subscription List</h1>
+      </div>
+      <div class="flex justify-end mb-2">
+        <button @click="fetchSubscriptions" class="bg-slate-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+          Refresh
+        </button>
+      </div>
       <div class="bg-white shadow-lg rounded-lg overflow-hidden">
         <table class="min-w-full table-auto">
           <thead
             class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal"
           >
             <tr>
-              <th class="py-3 px-6 text-left">Subscription ID</th>
-              <th class="py-3 px-6 text-left">Notification URI</th>
+              <th class="py-3 px-6 text-left">Subscription</th>
+              <th class="py-3 px-6 text-left">Event Request</th>
               <th class="py-3 px-6 text-left">NF Types</th>
-              <th class="py-3 px-6 text-left">Events</th>
+              <th class="py-3 px-6 text-left">Event</th>
               <th class="py-3 px-6 text-center">Details</th>
               <th class="py-3 px-6 text-center">Actions</th>
             </tr>
@@ -67,22 +74,41 @@
               :key="subId"
               class="border-b border-gray-200 hover:bg-gray-100"
             >
-              <td class="py-3 px-6 text-left whitespace-nowrap">{{ subId }}</td>
-              <td class="py-3 px-6 text-left">
-                {{ subscription.notificationUri }}
+              <td class="py-3 px-6 text-left whitespace-nowrap">
+                <div>
+                  {{ subId }}
+                </div>
+                <div>
+                  <span class="font-bold">ntification uri:</span> {{ subscription.notificationURI }}
+                </div>
               </td>
               <td class="py-3 px-6 text-left">
-                {{ subscription.eventSubscriptions[0]?.nfTypes }}
+
+                <template v-if="evtReq = subscription.eventSubscriptions[0]?.evtReq">
+                  <div>
+                    Immediate Reporting: {{ evtReq.immRep }}
+                  </div>
+                  <div>
+                    Notification Method: {{ evtReq.notifMethod }}
+                  </div>
+                  <div>
+                    Max Report NBR: {{ evtReq.maxReportNbr }}
+                  </div>
+                </template>
+
               </td>
-              <td class="py-3 px-6 text-left">
-                {{ (subscription.eventSubscriptions[0]?.events || []).map(e => e.event).join(', ') }}
+              <td class="py-3 px-6 text-left font-bold">
+                {{ subscription.eventSubscriptions[0]?.nfTypes.join(',') }}
+              </td>
+              <td class="py-3 px-6 text-left font-bold">
+                {{ subscription.eventSubscriptions[0]?.event }}
               </td>
               <td class="py-3 px-6 text-center">
                 <button
                   @click="showModal(subscription)"
                   class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-3 rounded-full text-xs"
                 >
-                  View JSON
+                  JSON
                 </button>
               </td>
               <td class="py-3 px-6 text-center">
@@ -90,7 +116,7 @@
                   @click="unsubscribe(subId)"
                   class="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-3 rounded-full text-xs"
                 >
-                  Unsubscribe
+                  X
                 </button>
               </td>
             </tr>
