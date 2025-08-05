@@ -1,6 +1,9 @@
 # coding: utf-8
 
 import asyncio
+from datetime import datetime, timedelta, timezone
+import logging
+import time
 from typing import Optional  # noqa: F401
 import uuid
 
@@ -35,6 +38,56 @@ def build_ncof_notification_uri(subscription_id: str) -> str:
     return f"http://{app_config.server_ip}:{app_config.port}/{app_config.notification_prefix}/notifications/{subscription_id}"
 
 
+# 비동기 작업을 위한 태스크 리스트 생성
+async def subscribe_to_nfs(nfs, payload, subscription_id):
+    tasks = [
+        subscribe_to_nf(
+            subscription_id=subscription_id,
+            uri=nf.get("uri") or "",
+            payload=payload,
+        )
+        for nf in nfs
+    ]
+    # 모든 태스크를 병렬로 실행하고 결과를 기다림
+    results = await asyncio.gather(*tasks, return_exceptions=True)
+    for result in results:
+        if isinstance(result, Exception):
+            raise Exception("fail to subscribe")
+    return True
+
+
+logger = logging.getLogger(__name__)
+# TIMEZONE: timezone = timezone(timedelta(hours=9))
+TIMEZONE = datetime.now().astimezone().tzinfo
+
+
+def check_subscription(event_subscription):
+    if not event_subscription.nf_types:
+        raise HTTPException(
+            status_code=400,
+            detail="No NF types specified in the subscription request",
+        )
+
+    current_time = datetime.now(TIMEZONE)
+
+    if event_subscription.extra_report_req is not None:
+        end_ts = event_subscription.extra_report_req.end_ts
+
+    if end_ts and current_time >= end_ts:
+        logger.info(f"{('종료조건')} - end_ts exceeded ({end_ts})")
+        raise HTTPException(
+            status_code=400, detail=f"Error subscribing: Not yet started"
+        )
+
+
+def get_nfs_by_types(nf_types):
+    nfs = []
+    for nf_type in nf_types or []:
+        nf = get_nf_info(nf_type)
+        nfs.append(nf)
+    return nfs
+
+
 @router.post(
     "/subscriptions",
     responses={
@@ -65,80 +118,38 @@ async def create_ncof_events_subscription(
     subscription_manager: SubscriptionManager = Depends(get_subscription_manager),
 ):
     event_subscription = subscription.event_subscriptions[0]
-
-    if not event_subscription.nf_types:
-        raise HTTPException(
-            status_code=400,
-            detail="No NF types specified in the subscription request",
-        )
-
-    nfs = []
-    for nf_type in event_subscription.nf_types:
-        nf_info = get_nf_info(nf_type)
-        nfs.append(nf_info)
-        if not nf_info:
-            raise HTTPException(
-                status_code=404,
-                detail=f"NF type {nf_type} not found in NRF",
-            )
-
     try:
+        check_subscription(event_subscription)
+        nfs = get_nfs_by_types(event_subscription.nf_types)
+
         # 구독 ID를 생성한다.
-        subscription_id = str(uuid.uuid4())
+        new_subscription_id = str(uuid.uuid4())
 
         new_nf_events_subscription = subscription.model_copy(deep=True)
 
         # update the notification URI in the subscription
         new_nf_events_subscription.notification_uri = build_ncof_notification_uri(
-            subscription_id
+            new_subscription_id
         )
 
-        new_nf_events_subscription.event_subscriptions[0].evt_req.rep_period = 1
+        # 보고 주기를 1초로
+        if new_nf_events_subscription.event_subscriptions[0].evt_req is not None:
+            new_nf_events_subscription.event_subscriptions[0].evt_req.rep_period = 1
 
-        # 비동기 작업을 위한 태스크 리스트 생성
-        async def execute_background_tasks():
-            tasks = [
-                subscribe_to_nf(
-                    subscription_id=subscription_id,
-                    uri=nf.get("uri") or "",
-                    payload=new_nf_events_subscription.model_dump(),
-                )
-                for nf in nfs
-            ]
-            # 모든 태스크를 병렬로 실행하고 결과를 기다림
-            results = await asyncio.gather(*tasks, return_exceptions=True)
-            for result in results:
-                if isinstance(result, Exception):
-                    raise Exception("fail to subscribe")
-            return True
+        subscription_manager.add_subscription(
+            subscription_id=new_subscription_id,
+            subscription=subscription,
+        )
 
-        # 모든 NF로 subscription 이 성공해야 구독완료
-        try:
-            await execute_background_tasks()
-            subscription_manager.add_subscription(
-                subscription_id=subscription_id,
-                subscription=subscription,
-            )
-        except Exception as e:
-            raise HTTPException(
-                status_code=500, detail=f"Error in background tasks: {str(e)}"
-            )
+        background_tasks.add_task(subscribe_to_nfs,
+            nfs, new_nf_events_subscription.model_dump(), new_subscription_id
+        )
 
-        # subscription_manager.add_subscription(
-        #     subscription_id=subscription_id,
-        #     subscription=subscription,
-        # )
-
-        # for nf in nfs:
-        #     background_tasks.add_task(
-        #         subscribe_to_nf,
-        #         subscription_id=subscription_id,
-        #         uri=nf.get("uri") or "",
-        #         payload=new_nf_events_subscription.model_dump(),
-        #     )
-        return subscription_id
+        return new_subscription_id
 
     except Exception as e:
+        if isinstance(e, HTTPException):
+            raise e
         raise HTTPException(status_code=500, detail=f"Error subscribing: {str(e)}")
     # return await subscription_service.create_ncof_events_subscription(subscription)
 

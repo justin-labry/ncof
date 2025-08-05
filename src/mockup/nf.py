@@ -17,8 +17,9 @@ async def subscribe():
     Subscribes to the NCOF service.
     """
     logging.info("Subscribing to NCOF...")
-    await send_subscription(ncof_url, event_subscription.model_dump())
+    res = await send_subscription(ncof_url, event_subscription.model_dump())
     logging.info("Subscription request sent.")
+    logging.info(res.content.decode("utf-8"))
 
 
 app = FastAPI(title="NF Mockup")
@@ -76,58 +77,23 @@ async def send_subscription(uri: str, payload: dict):
         logging.error(
             f"An unexpected error occurred while sending background notification to {uri}: {e}"
         )
+    return response
 
 
-event_subscription = NncofEventsSubscription.from_dict(
-    {
-        "eventSubscriptions": [
-            {
-                "anySlice": True,
-                "appIds": ["nfload-mobility-watcher-v1"],
-                "event": "NF_LOAD",
-                "extraReportReq": {
-                    "startTs": "2025-06-09T07:16:00.000+09:00",
-                    "endTs": "2025-07-09T18:00:00.000+09:00",
-                },
-                "notificationMethod": "PERIODIC",
-                "nfLoadLvlThds": [
-                    {
-                        "nfLoadLevel": 70,
-                        "nfCpuUsage": 80,
-                        "nfMemoryUsage": 80,
-                        "nfStorageUsage": 80,
-                        "avgTrafficRate": "20 Gbps",
-                        "maxTrafficRate": "40 Gbps",
-                        "aggTrafficRate": "80.0 Gbps",
-                    }
-                ],
-                "nfInstanceIds": ["3fa85f64-amf-4562-b3fc-2c963f66afa6"],
-                "nfTypes": ["SMF"],
-                "evtReq": {
-                    "immRep": False,
-                    "notifMethod": "PERIODIC",
-                    "maxReportNbr": 2,
-                    "monDur": "2025-07-09T18:00:00.000+09:00",
-                    "repPeriod": 1,
-                    "sampRatio": 75,
-                    "partitionCriteria": ["TAC"],
-                    "grpRepTime": 0,
-                    "notifFlag": "ACTIVATE",
-                    "notifFlagInstruct": {
-                        "bufferedNotifs": "SEND_ALL",
-                        "subscription": "CLOSE",
-                    },
-                    "mutingSetting": {"maxNoOfNotif": 0, "durationBufferedNotif": 0},
-                },
-            }
-        ],
-        "notificationURI": "http://localhost:8081/callbacks/notifications",
-        "notifCorrId": "string",
-        "supportedFeatures": "040",
-        "prevSub": "string",
-        "consNfInfo": "string",
-    }
-)
+def load_subscription_from_file(file_path: str) -> NncofEventsSubscription:
+    try:
+        with open(file_path, "r", encoding="utf-8") as f:
+            subscription_data = json.load(f)
+        return NncofEventsSubscription.from_dict(subscription_data)
+    except FileNotFoundError:
+        logging.error(f"Subscription file not found at {file_path}")
+        return None
+    except json.JSONDecodeError:
+        logging.error(f"Error decoding JSON from {file_path}")
+        return None
+
+
+event_subscription = load_subscription_from_file("src/mockup/subscription.json")
 
 ncof_url = "http://localhost:8080/ETRI_INRS_TEAM/NCOF_Nncof_EventSubscription/1.0.0/subscriptions"
 
