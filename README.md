@@ -1,7 +1,7 @@
 
 # NCOF API Server
 
-데이터모델과 API 스켈레톤은 [OpenAPI Generator](https://openapi-generator.tech) 를 사용 하였다.
+데이터모델과 API 스켈레톤 생성은 [OpenAPI Generator](https://openapi-generator.tech)를 사용 하였다.
 
 - API version: 1.0.0
 - Generator version: 7.13.0-SNAPSHOT
@@ -9,11 +9,13 @@
 
 ## Requirements.
 
-Python >= 3.12
+- Python >= 3.12
+- uv (Python package and project manager)
 
 ## Installation & Usage
 
 uv 가 없다면 다음 명령을 사용해서 설치한다.
+
 
 ```sh
 pip install uv
@@ -51,7 +53,7 @@ run.sh 의 옵션은 다음과 같다.
 
 ## Mockup
 
-NCOF 기능 확인을 위해서 NF, SMF, AMF Mockup을 구현하였다. 각 Mockup은 FastAPI 를 사용해서 기본적인 API를 구현한다.
+NCOF 기능 확인을 위해서 NF, SMF, AMF Mockup을 구현하였다. 각 Mockup은 FastAPI 를 사용해서 기본적인 API 기능을 제공한다.
 
 ### NF Mockup
 

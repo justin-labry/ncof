@@ -1,179 +1,130 @@
 <!DOCTYPE html>
 <html lang="ko">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Subscription List</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        [v-cloak] {
-            display: none;
-        }
+      [v-cloak] {
+        display: none;
+      }
 
-        .modal {
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0, 0, 0, 0.6);
-        }
+      .modal {
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.6);
+      }
 
-        .modal-content {
-            position: relative;
-            margin: 5% auto;
-            padding: 20px;
-            width: 80%;
-            max-width: 700px;
-            max-height: 600px;
-            display: flex;
-            flex-direction: column;
-        }
+      .modal-content {
+        position: relative;
+        margin: 5% auto;
+        padding: 20px;
+        width: 80%;
+        max-width: 700px;
+        max-height: 600px;
+        display: flex;
+        flex-direction: column;
+      }
     </style>
-</head>
+  </head>
 
-<body class="bg-gray-100 text-gray-800">
+  <body class="bg-gray-100 text-gray-800">
     <div id="app" v-cloak class="container mx-auto p-4">
-        <h1 class="text-3xl font-bold mb-6 text-center">Subscription List</h1>
-        <div class="bg-white shadow-lg rounded-lg overflow-hidden">
-            <table class="min-w-full table-auto">
-                <thead class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
-                    <tr>
-                        <th class="py-3 px-6 text-left">Subscription ID</th>
-                        <th class="py-3 px-6 text-left">Notification URI</th>
-                        <th class="py-3 px-6 text-left">NF Types</th>
-                        <th class="py-3 px-6 text-left">Events</th>
-                        <th class="py-3 px-6 text-center">Details</th>
-                        <th class="py-3 px-6 text-center">Actions</th>
-                    </tr>
-                </thead>
-                <tbody class="text-gray-600 text-sm font-light">
-                    <tr v-if="error">
-                        <td colspan="6" class="text-center text-red-500 p-4">Error loading subscriptions: {{ error }}
-                        </td>
-                    </tr>
-                    <tr v-else-if="!hasSubscriptions">
-                        <td colspan="6" class="py-3 px-6 text-center text-gray-500">No subscriptions found.</td>
-                    </tr>
-                    <tr v-for="(subscription, subId) in subscriptions" :key="subId"
-                        class="border-b border-gray-200 hover:bg-gray-100">
-                        <td class="py-3 px-6 text-left whitespace-nowrap">{{ subId }}</td>
-                        <td class="py-3 px-6 text-left">{{ subscription.notificationUri }}</td>
-                        <td class="py-3 px-6 text-left">{{ (subscription.eventSubscriptions[0]?.nfTypes || []).join(',
-                            ') }}</td>
-                        <td class="py-3 px-6 text-left">{{ (subscription.eventSubscriptions[0]?.events || []).map(e =>
-                            e.event).join(', ') }}</td>
-                        <td class="py-3 px-6 text-center">
-                            <button @click="showModal(subscription)"
-                                class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-3 rounded-full text-xs">
-                                View JSON
-                            </button>
-                        </td>
-                        <td class="py-3 px-6 text-center">
-                            <button @click="unsubscribe(subId)"
-                                class="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-3 rounded-full text-xs">
-                                Unsubscribe
-                            </button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+      <h1 class="text-3xl font-bold mb-6 text-center">Subscription List</h1>
+      <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+        <table class="min-w-full table-auto">
+          <thead
+            class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal"
+          >
+            <tr>
+              <th class="py-3 px-6 text-left">Subscription ID</th>
+              <th class="py-3 px-6 text-left">Notification URI</th>
+              <th class="py-3 px-6 text-left">NF Types</th>
+              <th class="py-3 px-6 text-left">Events</th>
+              <th class="py-3 px-6 text-center">Details</th>
+              <th class="py-3 px-6 text-center">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="text-gray-600 text-sm font-light">
+            <tr v-if="error">
+              <td colspan="6" class="text-center text-red-500 p-4">
+                Error loading subscriptions: {{ error }}
+              </td>
+            </tr>
+            <tr v-else-if="!hasSubscriptions">
+              <td colspan="6" class="py-3 px-6 text-center text-gray-500">
+                No subscriptions found.
+              </td>
+            </tr>
+            <tr
+              v-for="(subscription, subId) in subscriptions"
+              :key="subId"
+              class="border-b border-gray-200 hover:bg-gray-100"
+            >
+              <td class="py-3 px-6 text-left whitespace-nowrap">{{ subId }}</td>
+              <td class="py-3 px-6 text-left">
+                {{ subscription.notificationUri }}
+              </td>
+              <td class="py-3 px-6 text-left">
+                {{ subscription.eventSubscriptions[0]?.nfTypes }}
+              </td>
+              <td class="py-3 px-6 text-left">
+                {{ (subscription.eventSubscriptions[0]?.events || []).map(e => e.event).join(', ') }}
+              </td>
+              <td class="py-3 px-6 text-center">
+                <button
+                  @click="showModal(subscription)"
+                  class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-3 rounded-full text-xs"
+                >
+                  View JSON
+                </button>
+              </td>
+              <td class="py-3 px-6 text-center">
+                <button
+                  @click="unsubscribe(subId)"
+                  class="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-3 rounded-full text-xs"
+                >
+                  Unsubscribe
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
-        <!-- Modal -->
-        <div v-if="isModalVisible" class="modal flex items-center justify-center" @click.self="hideModal">
-            <div class="modal-content bg-gray-800 text-white rounded-lg shadow-xl">
-                <span @click="hideModal"
-                    class="absolute top-0 right-0 mt-2 mr-4 text-gray-400 hover:text-white text-3xl font-bold cursor-pointer">&times;</span>
-                <h2 class="text-xl font-bold mb-4">Subscription Details (JSON)</h2>
-                <pre class="bg-gray-900 p-4 rounded text-sm flex-grow overflow-y-auto">{{ prettyJson }}</pre>
-            </div>
+      <!-- Modal -->
+      <div
+        v-if="isModalVisible"
+        class="modal flex items-center justify-center"
+        @click.self="hideModal"
+      >
+        <div class="modal-content bg-gray-800 text-white rounded-lg shadow-xl">
+          <span
+            @click="hideModal"
+            class="absolute top-0 right-0 mt-2 mr-4 text-gray-400 hover:text-white text-3xl font-bold cursor-pointer"
+          >
+            &times;
+          </span>
+          <h2 class="text-xl font-bold mb-4">Subscription Details (JSON)</h2>
+          <pre
+            class="bg-gray-900 p-4 rounded text-sm flex-grow overflow-y-auto"
+          >
+            {{ prettyJson }}
+          </pre>
         </div>
+      </div>
     </div>
 
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="./main.js"></script>
     <script>
-        const { createApp } = Vue;
-
-        createApp({
-            data() {
-                return {
-                    subscriptions: {},
-                    selectedSubscription: null,
-                    isModalVisible: false,
-                    error: null
-                };
-            },
-            computed: {
-                hasSubscriptions() {
-                    return Object.keys(this.subscriptions).length > 0;
-                },
-                prettyJson() {
-                    if (!this.selectedSubscription) return '';
-                    return JSON.stringify(this.selectedSubscription, null, 2);
-                }
-            },
-            methods: {
-                fetchSubscriptions() {
-                    const apiUrl = '/ETRI_INRS_TEAM/NCOF_Nncof_EventSubscription/1.0.0/subscriptions';
-                    fetch(apiUrl)
-                        .then(response => {
-                            if (!response.ok) {
-                                throw new Error(`Network response was not ok (${response.status})`);
-                            }
-                            return response.json();
-                        })
-                        .then(data => {
-                            this.subscriptions = data;
-                        })
-                        .catch(error => {
-                            console.error('Error fetching subscriptions:', error);
-                            this.error = error.message;
-                        });
-                },
-                showModal(subscription) {
-                    this.selectedSubscription = subscription;
-                    this.isModalVisible = true;
-                },
-                hideModal() {
-                    this.isModalVisible = false;
-                    this.selectedSubscription = null;
-                },
-                async unsubscribe(subscriptionId) {
-                    if (!confirm(`Are you sure you want to unsubscribe from ${subscriptionId}?`)) {
-                        return;
-                    }
-
-                    const deleteUrl = `/ETRI_INRS_TEAM/NCOF_Nncof_EventSubscription/1.0.0/subscriptions/${subscriptionId}`;
-                    try {
-                        const response = await fetch(deleteUrl, {
-                            method: 'DELETE',
-                        });
-
-                        if (response.status === 204) { // No Content
-                            alert(`Successfully unsubscribed from ${subscriptionId}`);
-                            // Remove the subscription from the local data
-                            delete this.subscriptions[subscriptionId];
-                            // Trigger reactivity to update the list
-                            this.subscriptions = { ...this.subscriptions };
-                        } else {
-                            const errorData = await response.json();
-                            throw new Error(errorData.detail || `Failed to unsubscribe: ${response.status}`);
-                        }
-                    } catch (error) {
-                        console.error('Error unsubscribing:', error);
-                        alert(`Error unsubscribing: ${error.message}`);
-                    }
-                }
-            },
-            mounted() {
-                this.fetchSubscriptions();
-            }
-        }).mount('#app');
+      console.log('NCOF Events Subscription Service')
     </script>
-</body>
-
+  </body>
 </html>

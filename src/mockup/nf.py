@@ -29,7 +29,10 @@ async def receive_notification(
     background_tasks: BackgroundTasks,  # BackgroundTasks 주입
     event_notification: EventNotification = Body(None, description=""),
 ):
-    load_level_info = event_notification.nf_load_level_infos[0]
+    if event_notification.nf_load_level_infos is not None:
+        load_level_info = event_notification.nf_load_level_infos[0]
+    else:
+        return
 
     nf_instance_id = load_level_info.nf_instance_id
     nf_type = load_level_info.nf_type
@@ -48,12 +51,12 @@ async def receive_notification(
 
 print(
     r"""
- _   _ _____   __  __            _                
-| \ | |  ___| |  \/  | ___   ___| | ___   _ _ __  
-|  \| | |_    | |\/| |/ _ \ / __| |/ / | | | '_ \ 
+ _   _ _____   __  __            _
+| \ | |  ___| |  \/  | ___   ___| | ___   _ _ __
+|  \| | |_    | |\/| |/ _ \ / __| |/ / | | | '_ \
 | |\  |  _|   | |  | | (_) | (__|   <| |_| | |_) |
-|_| \_|_|     |_|  |_|\___/ \___|_|\_\\__,_| .__/ 
-                                           |_|    
+|_| \_|_|     |_|  |_|\___/ \___|_|\_\\__,_| .__/
+                                           |_|
     """
 )
 
