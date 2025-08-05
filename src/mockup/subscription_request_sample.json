@@ -1,0 +1,59 @@
+{
+  "eventSubscriptions": [
+    {
+      "anySlice": true,
+      "appIds": [
+        "nfload-mobility-watcher-v1"
+      ],
+      "event": "NF_LOAD",
+      "extraReportReq": {
+        "startTs": "2025-08-05T07:16:00.000+09:00",
+        "endTs": "2025-08-05T18:00:00.000+09:00"
+      },
+      "notificationMethod": "PERIODIC",
+      "nfLoadLvlThds": [
+        {
+          "nfLoadLevel": 70,
+          "nfCpuUsage": 80,
+          "nfMemoryUsage": 80,
+          "nfStorageUsage": 80,
+          "avgTrafficRate": "20 Gbps",
+          "maxTrafficRate": "40 Gbps",
+          "aggTrafficRate": "80.0 Gbps"
+        }
+      ],
+      "nfInstanceIds": [
+        "3fa85f64-amf-4562-b3fc-2c963f66afa6"
+      ],
+      "nfTypes": [
+        "SMF"
+      ],
+      "evtReq": {
+        "immRep": false,
+        "notifMethod": "PERIODIC",
+        "maxReportNbr": 100,
+        "monDur": "2025-08-05T18:00:00.000+09:00",
+        "repPeriod": 5,
+        "sampRatio": 75,
+        "partitionCriteria": [
+          "TAC"
+        ],
+        "grpRepTime": 0,
+        "notifFlag": "ACTIVATE",
+        "notifFlagInstruct": {
+          "bufferedNotifs": "SEND_ALL",
+          "subscription": "CLOSE"
+        },
+        "mutingSetting": {
+          "maxNoOfNotif": 0,
+          "durationBufferedNotif": 0
+        }
+      }
+    }
+  ],
+  "notificationURI": "http://localhost:8081/callbacks/notifications",
+  "notifCorrId": "string",
+  "supportedFeatures": "040",
+  "prevSub": "string",
+  "consNfInfo": "string"
+}
