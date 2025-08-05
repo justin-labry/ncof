@@ -56,21 +56,23 @@ run.sh 의 옵션은 다음과 같다.
 NCOF 기능 확인을 위해서 NF, SMF, AMF Mockup을 구현하였다. 각 Mockup은 FastAPI 를 사용해서 기본적인 API 기능을 제공한다.
 
 ### NF Mockup
-
-```
+NF 목업을 실행하기 전에 subscription.json 파일을 생성해야 한다.(이 파일은 nf.py에서 subscribe 할때 사용한다.)
+- src/mockup/subscription_request_sample.json 파일을 복사해서 src/mockup/subscription.json 파일을 생성한다.
+- 
+```sh
 sh run_nf.sh
 ```
-실행 후 터미널에서 'subscribe' 명령을 사용하면 NCOF 로 미리 설정된 subscription 요청이 보내진다.
+- 실행 후 터미널에서 'subscribe' 명령을 사용하면 NCOF 로 미리 설정된 subscription 요청이 보내진다.
 
 ### SMF Mockup
 
-```
+```sh
 sh run_smf.sh
 ```
 
 ### AMF Mockup
 
-```
+```sh
 sh run_amf.sh
 ```
 
@@ -78,7 +80,7 @@ sh run_amf.sh
 
 To run the tests:
 
-```bash
+```sh
 uv add pytest
 PYTHONPATH=src uv run pytest tests
 ```

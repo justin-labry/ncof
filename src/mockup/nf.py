@@ -12,7 +12,7 @@ from openapi_server.models.nncof_events_subscription import NncofEventsSubscript
 from utils.color import red, green, orange, blue, yellow, magenta, cyan, white
 
 
-async def subscribe():
+async def subscribe(event_subscription: NncofEventsSubscription):
     """
     Subscribes to the NCOF service.
     """
@@ -80,7 +80,7 @@ async def send_subscription(uri: str, payload: dict):
     return response
 
 
-def load_subscription_from_file(file_path: str) -> NncofEventsSubscription:
+def load_subscription_from_file(file_path: str) -> NncofEventsSubscription | None:
     try:
         with open(file_path, "r", encoding="utf-8") as f:
             subscription_data = json.load(f)
@@ -111,7 +111,8 @@ if __name__ == "__main__":
     while True:
         command = input("Enter 's' to send subscription, or 'q' to quit: ")
         if command.lower() == "s":
-            asyncio.run(subscribe())
+            if event_subscription:
+                asyncio.run(subscribe(event_subscription))
         elif command.lower() == "q":
             break
         else:
