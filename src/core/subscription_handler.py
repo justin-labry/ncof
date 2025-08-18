@@ -146,15 +146,16 @@ class SubscriptionHandler(threading.Thread):
 
         return False
 
-    def _aggregate_loads(
-        self, nf_loads: Dict[str, list[NfLoadLevelInformation]]
-    ) -> None:
+    def _get_nf_loads(self):
         """
         notification_queue에서 모든 알림을 가져와 nf_load_infos에 nf_instance_id별로 저장.
 
         Args:
             nf_load_infos: nf_instance_id를 키로, NfLoadLevelInformation 리스트를 값으로 가지는 딕셔너리
         """
+
+        nf_loads: Dict[str, list[NfLoadLevelInformation]] = {}
+
         while not self.notification_queue.empty():
             nf_load_level_info = self.notification_queue.get_nowait()
             nf_instance_id = nf_load_level_info.nf_instance_id
@@ -164,6 +165,7 @@ class SubscriptionHandler(threading.Thread):
                 nf_loads[nf_instance_id] = []
             nf_loads[nf_instance_id].append(nf_load_level_info)
             self.notification_queue.task_done()
+        return nf_loads
 
     def _process_notifications(
         self, notifications: Dict[str, list[NfLoadLevelInformation]]
@@ -214,7 +216,7 @@ class SubscriptionHandler(threading.Thread):
     def _process_on_event_detection(self):
         """ON_EVENT_DETECTION: 이벤트 감지 즉시 처리"""
         nf_load_infos: Dict[str, list[NfLoadLevelInformation]] = {}
-        self._aggregate_loads(nf_load_infos)
+        self._get_nf_loads(nf_load_infos)
         if nf_load_infos:
             self._process_notifications(nf_load_infos)
             self.report_count += 1
@@ -236,7 +238,7 @@ class SubscriptionHandler(threading.Thread):
 
     def run(self):
         logger.info(f"Start handler: {self.subscription_id}")
-        nf_load_infos: Dict[str, list[NfLoadLevelInformation]] = {}
+        # nf_load_infos: Dict[str, list[NfLoadLevelInformation]] = {}
         last_report_time = time.time()
         last_check_time = time.time()
 
@@ -267,21 +269,20 @@ class SubscriptionHandler(threading.Thread):
                         elif self.config.notif_method == "ON_THRESHOLD":
                             if not self.notification_queue.empty():
                                 self._process_on_threshold()
-                        last_check_time = current_time
-
-                    if (
-                        self.config.notif_method == "PERIODIC"
-                        and current_time - last_report_time >= self.config.rep_period
-                    ):
-                        self._aggregate_loads(nf_load_infos)
-                        if nf_load_infos:
-                            self._process_notifications(nf_load_infos)
-                            logger.info(
-                                f"[{self.subscription_id}] {green('PERIODIC Notify')} ---> NF"
-                            )
-                            self._increase_report_count()
-                            # nf_load_infos.clear()
-                        last_report_time = current_time
+                        elif self.config.notif_method == "PERIODIC":
+                            if (
+                                current_time - last_report_time
+                                >= self.config.rep_period
+                            ):
+                                nf_loads = self._get_nf_loads()
+                                if nf_loads:
+                                    self._process_notifications(nf_loads)
+                                    logger.info(
+                                        f"[{self.subscription_id}] {green('PERIODIC Notify')} ---> NF"
+                                    )
+                                    self._increase_report_count()
+                                    nf_loads.clear()
+                                last_report_time = current_time
 
                     # 다음 체크까지의 대기 시간 계산
                     time_until_next_check = max(
