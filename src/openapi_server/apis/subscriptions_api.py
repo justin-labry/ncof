@@ -76,7 +76,8 @@ def check_subscription(event_subscription):
     if end_ts and current_time >= end_ts:
         logger.info(f"{('종료조건')} - end_ts exceeded ({end_ts})")
         raise HTTPException(
-            status_code=400, detail=f"Error subscribing: Not yet started"
+            status_code=400,
+            detail=f"Error subscribing: The end time has already passed",
         )
 
 
@@ -141,8 +142,11 @@ async def create_ncof_events_subscription(
             subscription=subscription,
         )
 
-        background_tasks.add_task(subscribe_to_nfs,
-            nfs, new_nf_events_subscription.model_dump(), new_subscription_id
+        background_tasks.add_task(
+            subscribe_to_nfs,
+            nfs,
+            new_nf_events_subscription.model_dump(),
+            new_subscription_id,
         )
 
         return new_subscription_id

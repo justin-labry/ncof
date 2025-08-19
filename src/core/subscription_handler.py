@@ -213,17 +213,25 @@ class SubscriptionHandler(threading.Thread):
     def _check_threshold_exceeded(self, nf_load_info) -> bool:
         return True
 
+    def _process_queued_notifications(self) -> bool:
+        """
+        notification_queue에서 모든 알림을 가져와 처리하고 전송합니다.
+        알림이 성공적으로 전송되었으면 True를 반환합니다.
+        """
+        nf_loads = self._get_nf_loads()
+        if not nf_loads:
+            return False
+
+        self._process_notifications(nf_loads)
+        self._increase_report_count()
+        return True
+
     def _process_on_event_detection(self):
         """ON_EVENT_DETECTION: 이벤트 감지 즉시 처리"""
-        nf_load_infos: Dict[str, list[NfLoadLevelInformation]] = {}
-        self._get_nf_loads(nf_load_infos)
-        if nf_load_infos:
-            self._process_notifications(nf_load_infos)
-            self.report_count += 1
+        if self._process_queued_notifications():
             logger.info(
                 f"[{self.subscription_id}] 🚨 ON_EVENT_DETECTION Notify ---> NF"
             )
-        pass
 
     def _process_on_change(self):
         logger.info(f"[{self.subscription_id}] 🚨 ON_CHANGE Notify ---> NF")
@@ -238,72 +246,46 @@ class SubscriptionHandler(threading.Thread):
 
     def run(self):
         logger.info(f"Start handler: {self.subscription_id}")
-        # nf_load_infos: Dict[str, list[NfLoadLevelInformation]] = {}
         last_report_time = time.time()
-        last_check_time = time.time()
+        notif_method = self.config.notif_method
 
-        while True:
-            current_time = time.time()
-            with self.lock:
-                if not self.running or self._has_reached_limit():
-                    logger.debug(
-                        f"[Subscription Expired]: {self.subscription_id} "
-                        f"Elapsed Time: {(time.time() - self.start_time):.2f} seconds, "
-                        f"Notification Count: {self.report_count}"
-                    )
-                    self.running = False
-                    self.subscription_manager.remove_subscription(self.subscription_id)
-                    break
+        while self.running:
+            # 구독 만료 또는 핸들러 중지 조건 확인
+            if self._has_reached_limit():
+                self.running = False
+                break
 
-                try:
+            try:
+                # notif_method에 따른 처리
+                if notif_method == "PERIODIC":
+                    if time.time() - last_report_time >= self.config.rep_period:
+                        if self._process_queued_notifications():
+                            logger.info(f"[{self.subscription_id}]")
+                            logger.info(f"{green('PERIODIC Notification')}")
+                        last_report_time = time.time()
+                # 이벤트 기반 처리 (ON_EVENT_DETECTION, ON_CHANGE 등)
+                elif not self.notification_queue.empty():
+                    if notif_method == "ON_EVENT_DETECTION":
+                        self._process_on_event_detection()
+                    elif notif_method == "ON_CHANGE":
+                        self._process_on_change()
+                    elif notif_method == "ON_THRESHOLD":
+                        self._process_on_threshold()
 
-                    if current_time - last_check_time >= 1.0:
+                # CPU 사용을 줄이기 위해 짧은 대기 시간 추가
+                time.sleep(0.1)
 
-                        # notif_method에 따른 처리
-                        if self.config.notif_method == "ON_EVENT_DETECTION":
-                            if not self.notification_queue.empty():
-                                self._process_on_event_detection()
-                        elif self.config.notif_method == "ON_CHANGE":
-                            if not self.notification_queue.empty():
-                                self._process_on_change()
-                        elif self.config.notif_method == "ON_THRESHOLD":
-                            if not self.notification_queue.empty():
-                                self._process_on_threshold()
-                        elif self.config.notif_method == "PERIODIC":
-                            if (
-                                current_time - last_report_time
-                                >= self.config.rep_period
-                            ):
-                                nf_loads = self._get_nf_loads()
-                                if nf_loads:
-                                    self._process_notifications(nf_loads)
-                                    logger.info(
-                                        f"[{self.subscription_id}] {green('PERIODIC Notify')} ---> NF"
-                                    )
-                                    self._increase_report_count()
-                                    nf_loads.clear()
-                                last_report_time = current_time
+            except Exception as e:
+                logger.error(f"Error during notification processing: {str(e)}")
+                time.sleep(1.0)  # 오류 발생 시 잠시 대기
 
-                    # 다음 체크까지의 대기 시간 계산
-                    time_until_next_check = max(
-                        0, 1.0 - (current_time - last_check_time)
-                    )
-
-                    if self.config.notif_method == "PERIODIC":
-                        time_until_next_report = max(
-                            0,
-                            self.config.rep_period - (current_time - last_report_time),
-                        )
-                        sleep_time = min(time_until_next_check, time_until_next_report)
-                    else:
-                        sleep_time = time_until_next_check
-
-                    sleep_time = max(0.1, sleep_time)  # 최소 0.1초는 대기
-                    time.sleep(sleep_time)
-
-                except Exception as e:
-                    logger.error(f"Error during notification processing: {str(e)}")
-                    time.sleep(1.0)
+        # 핸들러 종료 및 리소스 정리
+        logger.debug(
+            f"[Subscription Expired]: {self.subscription_id} "
+            f"Elapsed Time: {(time.time() - self.start_time):.2f} seconds, "
+            f"Notification Count: {self.report_count}"
+        )
+        self.subscription_manager.remove_subscription(self.subscription_id)
 
     def add_notification(self, notification: NfLoadLevelInformation):
         if self.running:

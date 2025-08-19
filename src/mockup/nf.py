@@ -17,9 +17,14 @@ async def subscribe(event_subscription: NncofEventsSubscription):
     Subscribes to the NCOF service.
     """
     logging.info("Subscribing to NCOF...")
-    res = await send_subscription(ncof_url, event_subscription.model_dump())
-    logging.info("Subscription request sent.")
-    logging.info(res.content.decode("utf-8"))
+    try:
+        success = await send_subscription(ncof_url, event_subscription.model_dump())
+        if success:
+            print("Success to subscribe")
+        else:
+            print("Fail to subscribe")
+    except Exception as e:
+        logging.error(f"Error subscribing to NCOF: {e}")
 
 
 app = FastAPI(title="NF Mockup")
@@ -62,22 +67,29 @@ print(
 )
 
 
-async def send_subscription(uri: str, payload: dict):
-
+async def send_subscription(uri: str, payload: dict, timeout: float = 10.0):
     try:
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(timeout=timeout) as client:
             response = await client.post(uri, json=payload)
-            logging.info(f"[Notification] ---> {uri} 응답: {response.status_code}")
+            # Log response details
+            logging.info(f"Subscription request to {uri}")
+            logging.info(f"Status code: {response.status_code}")
+            logging.info(
+                f"Response content: {response.content.decode('utf-8', errors='ignore')}"
+            )
             response.raise_for_status()  # 필요하다면 HTTP 오류 발생시키기
-
-    except httpx.RequestError as e:
-        logging.error(f"Error sending background notification to {uri}: {e}")
-    except Exception as e:
-
+            return True
+    except httpx.HTTPStatusError as e:
         logging.error(
-            f"An unexpected error occurred while sending background notification to {uri}: {e}"
+            f"HTTP error occurred: {e.response.status_code} - {e.response.text}"
         )
-    return response
+        return False
+    except httpx.RequestError as e:
+        logging.error(f"Request error occurred: {str(e)}")
+        return False
+    except Exception as e:
+        logging.error(f"Unexpected error occurred: {str(e)}")
+        return False
 
 
 def load_subscription_from_file(file_path: str) -> NncofEventsSubscription | None:
