@@ -35,20 +35,22 @@ async def receive_notification(
     background_tasks: BackgroundTasks,  # BackgroundTasks 주입
     event_notification: EventNotification = Body(None, description=""),
 ):
-    if event_notification.nf_load_level_infos is not None:
-        load_level_info = event_notification.nf_load_level_infos[0]
-    else:
+    if event_notification.nf_load_level_infos is None:
         return
 
-    nf_instance_id = load_level_info.nf_instance_id
-    nf_type = load_level_info.nf_type
-    cpu_usage = load_level_info.nf_cpu_usage
-    memory_usage = load_level_info.nf_memory_usage
-    storage_usage = load_level_info.nf_storage_usage
+    logging.info(f"{green('Callback received')}")
 
-    logging.info(f"{green('Receive notification')}")
-    logging.info(f"  [{nf_type}] - {nf_instance_id}")
-    logging.info(f"  CPU: {cpu_usage} Memory: {memory_usage} Storage: {storage_usage}")
+    for load_level_info in event_notification.nf_load_level_infos:
+        nf_instance_id = load_level_info.nf_instance_id
+        nf_type = load_level_info.nf_type
+        cpu_usage = load_level_info.nf_cpu_usage
+        memory_usage = load_level_info.nf_memory_usage
+        storage_usage = load_level_info.nf_storage_usage
+
+        logging.info(f"  [{nf_type}] - {nf_instance_id}")
+        logging.info(
+            f"  CPU: {cpu_usage} Memory: {memory_usage} Storage: {storage_usage}"
+        )
 
     # print(json.dumps(event_notification.model_dump(), indent=2))
 

@@ -93,8 +93,19 @@ class HandlerConfig:
         )
 
 
+@dataclass
+class TimedNotification:
+    """타임스탬프를 포함하는 알림 데이터 클래스"""
+
+    timestamp: float
+    notification: NfLoadLevelInformation
+
+
 class SubscriptionHandler(threading.Thread):
     """구독 요청을 처리하고 조건에 따라 알림을 전송하는 스레드 클래스"""
+
+    MAX_NOTIFICATIONS = 100
+    MAX_AGE_MINUTES = 5
 
     def __init__(
         self,
@@ -106,7 +117,7 @@ class SubscriptionHandler(threading.Thread):
 
         self.subscription_id = subscription_id
         self.subscription_manager = handler_manager
-        self.notification_queue = queue.Queue()
+        self.notifications: list[TimedNotification] = []
         self.start_time = time.time()
         self.loop = asyncio.get_event_loop()
         self.lock = threading.Lock()
@@ -146,25 +157,49 @@ class SubscriptionHandler(threading.Thread):
 
         return False
 
-    def _get_nf_loads(self):
+    def _get_nf_loads(
+        self, create_default_if_empty: bool = False
+    ) -> Dict[str, list[NfLoadLevelInformation]]:
         """
-        notification_queue에서 모든 알림을 가져와 nf_load_infos에 nf_instance_id별로 저장.
+        저장된 알림 목록에서 최근 5분 내의 데이터를 필터링하고, nf_instance_id별로 그룹화합니다.
+        처리할 데이터가 없는 경우 기본값을 포함하는 통계 정보를 생성합니다.
+        """
+        with self.lock:
+            # 처리할 알림을 복사하고 원본 목록을 비웁니다.
+            notifications_to_process = self.notifications[:]
+            # self.notifications.clear()
 
-        Args:
-            nf_load_infos: nf_instance_id를 키로, NfLoadLevelInformation 리스트를 값으로 가지는 딕셔너리
-        """
+        five_minutes_ago = time.time() - (self.MAX_AGE_MINUTES * 60)
+
+        recent_notifications = [
+            item.notification
+            for item in notifications_to_process
+            if item.timestamp >= five_minutes_ago
+        ]
+        print(len(recent_notifications))
+        # 처리할 최근 알림이 없고, 기본값 생성이 필요한 경우
+        # if not recent_notifications and create_default_if_empty:
+        #     logger.debug(
+        #         f"[{self.subscription_id}] No recent notifications. Creating default info."
+        #     )
+        #     # TODO: NfLoadLevelInformation의 실제 필드에 맞게 수정 필요
+        #     default_info = NfLoadLevelInformation(
+        #         nf_instance_id="default-nf-instance",
+        #         nf_cpu_usage=0,
+        #         nf_memory_usage=0,
+        #         nf_storage_usage=0,
+        #     )
+        #     recent_notifications.append(default_info)
 
         nf_loads: Dict[str, list[NfLoadLevelInformation]] = {}
-
-        while not self.notification_queue.empty():
-            nf_load_level_info = self.notification_queue.get_nowait()
+        for nf_load_level_info in recent_notifications:
             nf_instance_id = nf_load_level_info.nf_instance_id
-
-            # nf_instance_id 별로 로드 정보 저장
+            if not nf_instance_id:
+                continue
             if nf_instance_id not in nf_loads:
                 nf_loads[nf_instance_id] = []
             nf_loads[nf_instance_id].append(nf_load_level_info)
-            self.notification_queue.task_done()
+
         return nf_loads
 
     def _process_notifications(
@@ -213,12 +248,14 @@ class SubscriptionHandler(threading.Thread):
     def _check_threshold_exceeded(self, nf_load_info) -> bool:
         return True
 
-    def _process_queued_notifications(self) -> bool:
+    def _process_queued_notifications(
+        self, create_default_if_empty: bool = False
+    ) -> bool:
         """
         notification_queue에서 모든 알림을 가져와 처리하고 전송합니다.
         알림이 성공적으로 전송되었으면 True를 반환합니다.
         """
-        nf_loads = self._get_nf_loads()
+        nf_loads = self._get_nf_loads(create_default_if_empty=create_default_if_empty)
         if not nf_loads:
             return False
 
@@ -228,7 +265,7 @@ class SubscriptionHandler(threading.Thread):
 
     def _process_on_event_detection(self):
         """ON_EVENT_DETECTION: 이벤트 감지 즉시 처리"""
-        if self._process_queued_notifications():
+        if self._process_queued_notifications(create_default_if_empty=False):
             logger.info(
                 f"[{self.subscription_id}] 🚨 ON_EVENT_DETECTION Notify ---> NF"
             )
@@ -260,11 +297,12 @@ class SubscriptionHandler(threading.Thread):
                 if notif_method == "PERIODIC":
                     if time.time() - last_report_time >= self.config.rep_period:
                         if self._process_queued_notifications():
-                            logger.info(f"[{self.subscription_id}]")
-                            logger.info(f"{green('PERIODIC Notification')}")
+                            logger.info(
+                                f"[{self.subscription_id}] {green('PERIODIC Notify')} ---> NF"
+                            )
                         last_report_time = time.time()
                 # 이벤트 기반 처리 (ON_EVENT_DETECTION, ON_CHANGE 등)
-                elif not self.notification_queue.empty():
+                elif self.notifications:  # 리스트가 비어있지 않을 때만 처리
                     if notif_method == "ON_EVENT_DETECTION":
                         self._process_on_event_detection()
                     elif notif_method == "ON_CHANGE":
@@ -273,7 +311,7 @@ class SubscriptionHandler(threading.Thread):
                         self._process_on_threshold()
 
                 # CPU 사용을 줄이기 위해 짧은 대기 시간 추가
-                time.sleep(0.1)
+                time.sleep(1)
 
             except Exception as e:
                 logger.error(f"Error during notification processing: {str(e)}")
@@ -287,11 +325,24 @@ class SubscriptionHandler(threading.Thread):
         )
         self.subscription_manager.remove_subscription(self.subscription_id)
 
-    def add_notification(self, notification: NfLoadLevelInformation):
-        if self.running:
-            self.notification_queue.put(notification)
+    def add_load_info(self, notification: NfLoadLevelInformation):
+        if not self.running:
+            return
+
+        with self.lock:
+            # Wrapper 클래스를 사용하여 타임스탬프와 함께 저장
+            timed_notification = TimedNotification(
+                timestamp=time.time(), notification=notification
+            )
+            self.notifications.append(timed_notification)
+
+            # 리스트 크기를 100개로 유지
+            if len(self.notifications) > self.MAX_NOTIFICATIONS:
+                self.notifications.pop(0)
+
             logger.info(
-                f"Add notification: {self.subscription_id}, Queue size: {self.notification_queue.qsize()}"
+                f"Add loads: {self.subscription_id}"
+                f"List size: {len(self.notifications)}",
             )
 
     def stop(self):

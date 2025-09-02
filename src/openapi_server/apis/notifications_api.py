@@ -58,6 +58,6 @@ async def create_nwdaf_events_notification(
         raise HTTPException(status_code=404, detail="구독 ID를 찾을 수 없음")
 
     for load in event_notification.nf_load_level_infos:
-        handler.add_notification(load)
+        handler.add_load_info(load)
 
     return None
