@@ -11,7 +11,7 @@ from typing import Dict, Optional
 from openapi_server.models.event_notification import EventNotification
 from openapi_server.models.nf_load_level_information import NfLoadLevelInformation
 
-from .load_aggregator import aggregate
+from .load_aggregator import calculate_average_loads
 from .nf_client import send_notification
 from .ifc import SubscriberManagerIfc
 
@@ -30,7 +30,7 @@ class HandlerConfig:
     mon_dur: Optional[datetime]  # 모니터링 지속 시간 (초, 선택)
     start_ts: Optional[datetime]  # 시작 타임스탬프 (선택)
     end_ts: Optional[datetime]  # 종료 타임스탬프 (선택)
-    notif_method: str  # 알림 방법 (선택)
+    notif_method: str  # 알림 방법
 
     notification_uri: Optional[str]  # 알림 URI (선택)
     log_level: int = logging.INFO  # 로그 레벨 기본값
@@ -38,6 +38,9 @@ class HandlerConfig:
     # 클래스 상수: 기본값 정의
     DEFAULT_rep_period_SEC = 5.0  # 기본 보고 주기
     DEFAULT_MAX_REPORT_NBR = 0  # 기본 최대 보고 횟수, 0이면 무제한
+
+    MAX_NOTIFICATIONS = 100
+    MAX_AGE_MINUTES = 5
 
     def __post_init__(self):
         """설정값 유효성 검사"""
@@ -55,7 +58,7 @@ class HandlerConfig:
     @staticmethod
     def from_ncof_events_subscription(ncof_events_subscription) -> "HandlerConfig":
         """
-        ncof_events_subscription에서 설정값을 추출해 HandlerConfig를 생성.
+        ncof_events_subscription에서 설정값을 추출해 HandlerConfig를 생성한다.
 
         Args:
             ncof_events_subscription: 이벤트 구독 객체
@@ -72,12 +75,12 @@ class HandlerConfig:
         max_report_nbr = getattr(
             evt_req, "max_report_nbr", HandlerConfig.DEFAULT_MAX_REPORT_NBR
         )
-        print("--->", max_report_nbr)
+
         mon_dur = getattr(evt_req, "mon_dur", None)
         start_ts = getattr(extra_report_req, "start_ts", None)
         end_ts = getattr(extra_report_req, "end_ts", None)
 
-        notif_method = getattr(evt_req, "notif_method", None)
+        notif_method = getattr(evt_req, "notif_method", "PERIODIC")
 
         notification_uri = getattr(ncof_events_subscription, "notification_uri", None)
 
@@ -104,9 +107,6 @@ class TimedNotification:
 class SubscriptionHandler(threading.Thread):
     """구독 요청을 처리하고 조건에 따라 알림을 전송하는 스레드 클래스"""
 
-    MAX_NOTIFICATIONS = 100
-    MAX_AGE_MINUTES = 5
-
     def __init__(
         self,
         subscription_id: str,
@@ -129,12 +129,12 @@ class SubscriptionHandler(threading.Thread):
     def _has_reached_limit(self):
         current_time = datetime.now(TIMEZONE)
         elapsed_time = time.time() - self.start_time
-        logger.debug(
+        logger.info(
             f"Checking limits: subscription_id={self.subscription_id}, elapsed_time={elapsed_time:.2f}s, report_count={self.report_count}"
         )
 
         if self.config.start_ts and current_time < self.config.start_ts:
-            logger.debug(
+            logger.info(
                 f"{red('종료조건')} - start_ts not yet started ({self.config.start_ts})"
             )
             return False
@@ -169,14 +169,14 @@ class SubscriptionHandler(threading.Thread):
             notifications_to_process = self.notifications[:]
             # self.notifications.clear()
 
-        five_minutes_ago = time.time() - (self.MAX_AGE_MINUTES * 60)
+        five_minutes_ago = time.time() - (self.config.MAX_AGE_MINUTES * 60)
 
         recent_notifications = [
             item.notification
             for item in notifications_to_process
             if item.timestamp >= five_minutes_ago
         ]
-        print(len(recent_notifications))
+
         # 처리할 최근 알림이 없고, 기본값 생성이 필요한 경우
         # if not recent_notifications and create_default_if_empty:
         #     logger.debug(
@@ -203,7 +203,7 @@ class SubscriptionHandler(threading.Thread):
         return nf_loads
 
     def _process_notifications(
-        self, notifications: Dict[str, list[NfLoadLevelInformation]]
+        self, nf_load_level_infos_by_nf: Dict[str, list[NfLoadLevelInformation]]
     ):
         """알림 데이터 처리 및 클라이언트에 통지"""
 
@@ -211,7 +211,7 @@ class SubscriptionHandler(threading.Thread):
             logger.info("notification_uri missed")
             return
 
-        nf_load_level_infos = aggregate(notifications)
+        nf_load_level_infos = calculate_average_loads(nf_load_level_infos_by_nf)
 
         if not nf_load_level_infos:
             return
@@ -236,11 +236,12 @@ class SubscriptionHandler(threading.Thread):
                     f"Notification sending failed: {self.subscription_id},"
                     f"Status code={status_code}"
                 )
-
+        except asyncio.TimeoutError:
+            logger.error(f"Notification timeout: {self.subscription_id}")
+        except ConnectionError:
+            logger.error(f"Connection failed: {self.subscription_id}")
         except Exception as e:
-            logger.error(
-                f"Error during notification sending: {self.subscription_id}, Error={str(e)}"
-            )
+            logger.error(f"Unexpected error: {self.subscription_id} {e}", exc_info=True)
 
     def _check_value_change(self, nf_load_info) -> bool:
         return True
@@ -337,7 +338,7 @@ class SubscriptionHandler(threading.Thread):
             self.notifications.append(timed_notification)
 
             # 리스트 크기를 100개로 유지
-            if len(self.notifications) > self.MAX_NOTIFICATIONS:
+            if len(self.notifications) > self.config.MAX_NOTIFICATIONS:
                 self.notifications.pop(0)
 
             logger.info(

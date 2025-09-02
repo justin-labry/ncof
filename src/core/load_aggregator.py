@@ -9,7 +9,7 @@ def average(values: list[StrictInt]) -> float:
     return round(sum(values) / len(values), 2) if values else 0
 
 
-def aggregate(
+def calculate_average_loads(
     nf_load_level_infos_by_instance: Dict[str, list[NfLoadLevelInformation]],
 ) -> list[NfLoadLevelInformation]:
 
