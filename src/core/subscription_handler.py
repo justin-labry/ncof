@@ -331,7 +331,7 @@ class SubscriptionHandler(threading.Thread):
             if len(self.notifications) > self.config.MAX_NOTIFICATIONS:
                 self.notifications.pop(0)
 
-            logger.info(
+            logger.debug(
                 f"Add loads: {self.subscription_id}"
                 f"List size: {len(self.notifications)}",
             )
