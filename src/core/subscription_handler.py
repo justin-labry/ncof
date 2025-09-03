@@ -129,15 +129,11 @@ class SubscriptionHandler(threading.Thread):
     def _has_reached_limit(self):
         current_time = datetime.now(TIMEZONE)
         elapsed_time = time.time() - self.start_time
-        logger.info(
-            f"Checking limits: subscription_id={self.subscription_id}, elapsed_time={elapsed_time:.2f}s, report_count={self.report_count}"
+        logger.debug(
+            f"Checking limits: subscription_id={self.subscription_id}"
+            f"elapsed_time={elapsed_time:.2f}s"
+            f"report_count={self.report_count}"
         )
-
-        if self.config.start_ts and current_time < self.config.start_ts:
-            logger.info(
-                f"{red('종료조건')} - start_ts not yet started ({self.config.start_ts})"
-            )
-            return False
 
         if self.config.end_ts and current_time >= self.config.end_ts:
             logger.info(f"{red('종료조건')} - end_ts exceeded ({self.config.end_ts})")
@@ -161,13 +157,15 @@ class SubscriptionHandler(threading.Thread):
         self, create_default_if_empty: bool = False
     ) -> Dict[str, list[NfLoadLevelInformation]]:
         """
-        저장된 알림 목록에서 최근 5분 내의 데이터를 필터링하고, nf_instance_id별로 그룹화합니다.
+        저장된 알림 목록에서 최근 5분 내의 데이터를 필터링하고, nf_instance_id별로 그룹화한다.
         처리할 데이터가 없는 경우 기본값을 포함하는 통계 정보를 생성합니다.
         """
         with self.lock:
-            # 처리할 알림을 복사하고 원본 목록을 비웁니다.
+            # 처리할 알림을 복사합니다.
             notifications_to_process = self.notifications[:]
-            # self.notifications.clear()
+            # 이벤트 기반 알림(PERIODIC이 아닌 경우)은 처리 후 목록을 비워 중복 전송방지
+            if self.config.notif_method != "PERIODIC":
+                self.notifications.clear()
 
         five_minutes_ago = time.time() - (self.config.MAX_AGE_MINUTES * 60)
 
@@ -176,20 +174,6 @@ class SubscriptionHandler(threading.Thread):
             for item in notifications_to_process
             if item.timestamp >= five_minutes_ago
         ]
-
-        # 처리할 최근 알림이 없고, 기본값 생성이 필요한 경우
-        # if not recent_notifications and create_default_if_empty:
-        #     logger.debug(
-        #         f"[{self.subscription_id}] No recent notifications. Creating default info."
-        #     )
-        #     # TODO: NfLoadLevelInformation의 실제 필드에 맞게 수정 필요
-        #     default_info = NfLoadLevelInformation(
-        #         nf_instance_id="default-nf-instance",
-        #         nf_cpu_usage=0,
-        #         nf_memory_usage=0,
-        #         nf_storage_usage=0,
-        #     )
-        #     recent_notifications.append(default_info)
 
         nf_loads: Dict[str, list[NfLoadLevelInformation]] = {}
         for nf_load_level_info in recent_notifications:
@@ -202,10 +186,10 @@ class SubscriptionHandler(threading.Thread):
 
         return nf_loads
 
-    def _process_notifications(
+    def _send_callback_to_nf(
         self, nf_load_level_infos_by_nf: Dict[str, list[NfLoadLevelInformation]]
     ):
-        """알림 데이터 처리 및 클라이언트에 통지"""
+        """통계정보 콜백처리"""
 
         if not self.config.notification_uri:
             logger.info("notification_uri missed")
@@ -253,14 +237,14 @@ class SubscriptionHandler(threading.Thread):
         self, create_default_if_empty: bool = False
     ) -> bool:
         """
-        notification_queue에서 모든 알림을 가져와 처리하고 전송합니다.
-        알림이 성공적으로 전송되었으면 True를 반환합니다.
+        notification_queue에서 모든 알림을 가져와 처리하고 전송한다.
+        알림이 성공적으로 전송되었으면 True를 반환한다.
         """
         nf_loads = self._get_nf_loads(create_default_if_empty=create_default_if_empty)
         if not nf_loads:
             return False
 
-        self._process_notifications(nf_loads)
+        self._send_callback_to_nf(nf_loads)
         self._increase_report_count()
         return True
 
@@ -272,8 +256,6 @@ class SubscriptionHandler(threading.Thread):
             )
 
     def _process_on_change(self):
-        logger.info(f"[{self.subscription_id}] 🚨 ON_CHANGE Notify ---> NF")
-        self._increase_report_count()
         pass
 
     def _process_on_threshold(self):
@@ -292,6 +274,14 @@ class SubscriptionHandler(threading.Thread):
             if self._has_reached_limit():
                 self.running = False
                 break
+
+            current_time = datetime.now(TIMEZONE)
+            if self.config.start_ts and current_time < self.config.start_ts:
+                logger.debug(
+                    f"[{self.subscription_id}] Waiting for start_ts: {self.config.start_ts}"
+                )
+                time.sleep(1)
+                continue
 
             try:
                 # notif_method에 따른 처리
