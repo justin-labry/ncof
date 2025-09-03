@@ -11,7 +11,7 @@ from typing import Dict, Optional
 from openapi_server.models.event_notification import EventNotification
 from openapi_server.models.nf_load_level_information import NfLoadLevelInformation
 
-from .load_aggregator import calculate_average_loads
+from .nf_load_aggregator import calculate_average_loads
 from .nf_client import send_notification
 from .ifc import SubscriberManagerIfc
 
